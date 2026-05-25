@@ -5,53 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SST ACADEMY | CBT PORTAL</title>
     <style>
-        :root { --primary: #0b5ea8; --sidebar: #f8f9fa; }
+        :root { --primary: #0b5ea8; }
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; }
-        
-        /* Header Zone */
-        .cbt-header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* Workspace Zone */
+        .cbt-header { background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
-        .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
-        .sidebar { width: 300px; background: var(--sidebar); border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        
-        /* Elements */
+        .canvas { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
+        .sidebar { width: 300px; background: #f8f9fa; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
-        .btn { padding: 10px 20px; cursor: pointer; border: none; background: var(--primary); color: white; }
+        .btn { padding: 10px 20px; cursor: pointer; border: none; background: var(--primary); color: white; margin-top: 10px; }
         .hide { display: none; }
-        
         @media print { .sidebar, .cbt-header, .btn { display: none !important; } .canvas { display: block !important; } }
     </style>
 </head>
 <body>
 
-<header class="cbt-header" id="headerZone">
-    <div><strong>SST ACADEMY</strong> | Official CBT</div>
+<header class="cbt-header">
+    <div id="examInfo"><strong>SST ACADEMY</strong> | Social Studies</div>
     <div id="timer">Time Remaining: 25:00</div>
 </header>
 
 <div class="cbt-workspace" id="examUI">
     <main class="canvas" id="canvas">
         <div id="setupSection">
+            <img src="YOUR_LOGO_URL" style="width:80px;">
             <h2>Candidate Login</h2>
             <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
-            <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;"><option value="">Select Class</option><option value="6">Class 6</option></select>
+            <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;">
+                <option value="">Select Class</option>
+                <option value="6">Class 6</option><option value="7">Class 7</option>
+                <option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option>
+            </select>
             <div id="chapterBox" style="margin:15px 0;"></div>
             <button class="btn" onclick="startTest()">START EXAMINATION</button>
         </div>
         <div id="examSection" class="hide">
             <div id="qDisplay"></div>
-            <div style="margin-top:30px;">
-                <button class="btn" onclick="prevQ()">PREVIOUS</button>
-                <button class="btn" onclick="nextQ()">NEXT</button>
-                <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
-            </div>
+            <button class="btn" onclick="prevQ()">PREVIOUS</button>
+            <button class="btn" onclick="nextQ()">NEXT</button>
+            <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
         </div>
     </main>
-    <aside class="sidebar" id="sidebar">
+    <aside class="sidebar">
         <h4>Question Palette</h4>
         <div id="qMap"></div>
     </aside>
@@ -60,7 +56,7 @@
 <div id="resultSection" class="hide" style="padding:40px;">
     <div id="printArea">
         <h2 style="text-align:center;">OFFICIAL SCORECARD</h2>
-        <div id="pdfMetadata" style="border-bottom:2px solid #000; padding:10px; margin-bottom:20px;"></div>
+        <div id="pdfMetadata" style="border:1px solid #000; padding:10px; margin-bottom:20px;"></div>
         <div id="finalReport"></div>
     </div>
     <button class="btn" onclick="window.print()">PRINT / SAVE PDF</button>
@@ -3696,7 +3692,6 @@
 
 };
 
-
 let selectedQuestions = [], currentIdx = 0, setCode = "SET-" + Math.floor(Math.random() * 1000);
 
     function loadChapters() {
@@ -3707,8 +3702,9 @@ let selectedQuestions = [], currentIdx = 0, setCode = "SET-" + Math.floor(Math.r
     }
 
     function startTest() {
-        let chaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
-        chaps.forEach(ch => selectedQuestions = selectedQuestions.concat(questionBank[document.getElementById("sClass").value][ch]));
+        let pool = [];
+        Array.from(document.querySelectorAll(".chCheck:checked")).forEach(el => pool = pool.concat(questionBank[document.getElementById("sClass").value][el.value]));
+        selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
         renderQ(); updateNav(); startTimer();
@@ -3740,12 +3736,16 @@ let selectedQuestions = [], currentIdx = 0, setCode = "SET-" + Math.floor(Math.r
     }
 
     function jumpTo(i) { currentIdx = i; renderQ(); }
-    function nextQ() { if(currentIdx < selectedQuestions.length -1) { currentIdx++; renderQ(); } }
+    function nextQ() { if(currentIdx < selectedQuestions.length - 1) { currentIdx++; renderQ(); } }
     function prevQ() { if(currentIdx > 0) { currentIdx--; renderQ(); } }
 
     function startTimer() {
         let t = 1500;
-        setInterval(() => { t--; document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) submitExam(); }, 1000);
+        let timerInt = setInterval(() => {
+            t--;
+            document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`;
+            if(t <= 0) { clearInterval(timerInt); submitExam(); }
+        }, 1000);
     }
 
     function submitExam() {
@@ -3753,9 +3753,9 @@ let selectedQuestions = [], currentIdx = 0, setCode = "SET-" + Math.floor(Math.r
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
             if(sel === q.answer) score++;
-            report += `<div style="margin-bottom:20px;"><strong>Q${i+1}: ${q.question}</strong><br>${q.options.map(o => `<div style="${o==q.answer?'color:green; font-weight:bold':'color:red; font-weight:bold'}">${o} ${o==q.answer?'✓':''}</div>`).join('')}</div>`;
+            report += `<div style="margin-bottom:20px;"><strong>Q${i+1}: ${q.question}</strong><br>${q.options.map(o => `<div style="${o==q.answer?'color:green':'color:red'}">${o} ${o==q.answer?'✓':''}</div>`).join('')}</div>`;
         });
-        document.getElementById("pdfMetadata").innerHTML = `Name: ${document.getElementById("sName").value} | Class: ${document.getElementById("sClass").value} | Score: ${score}/20`;
+        document.getElementById("pdfMetadata").innerHTML = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Score:</strong> ${score}/20`;
         document.getElementById("finalReport").innerHTML = report;
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");

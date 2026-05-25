@@ -3,54 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SST ACADEMY - Official Examination Portal</title>
+    <title>SST ACADEMY | CBT PORTAL</title>
     <style>
-        body { font-family: 'Times New Roman', serif; background: #f4f4f4; margin: 0; padding: 10px; }
-        .card { background: white; padding: 20px; max-width: 800px; margin: auto; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .header-section { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .sticky-head { position: sticky; top: 0; background: #fff; padding: 10px; border-bottom: 1px solid #000; z-index: 1000; }
-        .input-group { margin-bottom: 15px; }
-        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; }
-        .btn { width: 100%; padding: 12px; background: #000; color: white; border: none; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-        .q-block { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .option { padding: 8px; border: 1px solid #ddd; margin: 4px 0; }
-        .status-box { display: inline-block; width: 25px; height: 25px; text-align: center; line-height: 25px; margin: 2px; border: 1px solid #999; font-size: 11px; }
-        .answered { background: #000; color: #fff; }
+        :root { --primary: #0b5ea8; --sidebar: #f8f9fa; }
+        body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; }
+        
+        /* Header Zone */
+        .cbt-header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Workspace Zone */
+        .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
+        .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
+        .sidebar { width: 300px; background: var(--sidebar); border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
+        
+        /* Elements */
+        .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
+        .answered { background: #28a745; color: white; }
+        .btn { padding: 10px 20px; cursor: pointer; border: none; background: var(--primary); color: white; }
         .hide { display: none; }
-        @media print { .no-print { display: none !important; } }
+        
+        @media print { .sidebar, .cbt-header, .btn { display: none !important; } .canvas { display: block !important; } }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="header-section" id="brandHeader">
-        <img src="YOUR_LOGO_URL" style="width:70px;">
-        <h2 style="margin:5px 0;">SST ACADEMY</h2>
-        <p style="margin:0; font-style:italic;">"Excellence in Social Studies" | Official Examination Portal</p>
-    </div>
+<header class="cbt-header" id="headerZone">
+    <div><strong>SST ACADEMY</strong> | Official CBT</div>
+    <div id="timer">Time Remaining: 25:00</div>
+</header>
 
-    <div id="setupSection">
-        <div class="input-group"><input type="text" id="sName" placeholder="Full Name"></div>
-        <div class="input-group"><input type="text" id="sRoll" placeholder="Roll No"></div>
-        <div class="input-group"><select id="sClass" onchange="loadChapters()"><option value="">Select Class</option><option value="6">Class 6</option></select></div>
-        <div id="chapterBox" class="input-group"></div>
-        <button class="btn" onclick="startTest()">Start Examination</button>
-    </div>
-
-    <div id="examSection" class="hide">
-        <div class="sticky-head">
-            <div id="timer" style="color:red; font-weight:bold;">Time: 25:00</div>
-            <div id="qMap"></div>
+<div class="cbt-workspace" id="examUI">
+    <main class="canvas" id="canvas">
+        <div id="setupSection">
+            <h2>Candidate Login</h2>
+            <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px;"><br>
+            <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
+            <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;"><option value="">Select Class</option><option value="6">Class 6</option></select>
+            <div id="chapterBox" style="margin:15px 0;"></div>
+            <button class="btn" onclick="startTest()">START EXAMINATION</button>
         </div>
-        <div id="questionsContainer" style="margin-top:10px;"></div>
-        <button class="btn" onclick="submitExam()">Submit Final Paper</button>
-    </div>
+        <div id="examSection" class="hide">
+            <div id="qDisplay"></div>
+            <div style="margin-top:30px;">
+                <button class="btn" onclick="prevQ()">PREVIOUS</button>
+                <button class="btn" onclick="nextQ()">NEXT</button>
+                <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            </div>
+        </div>
+    </main>
+    <aside class="sidebar" id="sidebar">
+        <h4>Question Palette</h4>
+        <div id="qMap"></div>
+    </aside>
+</div>
 
-    <div id="resultSection" class="hide">
-        <div id="pdfMetadata" style="font-size:14px; margin-bottom:20px;"></div>
+<div id="resultSection" class="hide" style="padding:40px;">
+    <div id="printArea">
+        <h2 style="text-align:center;">OFFICIAL SCORECARD</h2>
+        <div id="pdfMetadata" style="border-bottom:2px solid #000; padding:10px; margin-bottom:20px;"></div>
         <div id="finalReport"></div>
-        <button class="btn no-print" onclick="window.print()">Print/Save Scorecard</button>
     </div>
+    <button class="btn" onclick="window.print()">PRINT / SAVE PDF</button>
 </div>
 
 <script>
@@ -3684,78 +3697,69 @@
 };
 
 
-let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000), selectedChaps = [];
+let selectedQuestions = [], currentIdx = 0, setCode = "SET-" + Math.floor(Math.random() * 1000);
 
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
         const box = document.getElementById("chapterBox");
-        box.innerHTML = "<strong>Select Chapters:</strong><br>";
+        box.innerHTML = "";
         if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
     }
 
     function startTest() {
-        selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
-        let pool = [];
-        selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
-        selectedQuestions = pool.slice(0, 20);
-        
+        let chaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
+        chaps.forEach(ch => selectedQuestions = selectedQuestions.concat(questionBank[document.getElementById("sClass").value][ch]));
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
-        
-        let html = "";
-        selectedQuestions.forEach((q, i) => {
-            html += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
-            q.options.forEach(opt => html += `<label class="option"><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
-            html += `</div>`;
+        renderQ(); updateNav(); startTimer();
+    }
+
+    function renderQ() {
+        const q = selectedQuestions[currentIdx];
+        let html = `<h3>Question ${currentIdx + 1}</h3><p>${q.question}</p>`;
+        q.options.forEach(opt => {
+            let checked = document.querySelector(`input[name="q${currentIdx}"][value="${opt}"]`)?.checked ? 'checked' : '';
+            html += `<label style="display:block; padding:10px; border:1px solid #ddd; margin:5px 0;"><input type="radio" name="mainQ" value="${opt}" ${checked} onchange="saveAns('${opt}')"> ${opt}</label>`;
         });
-        document.getElementById("questionsContainer").innerHTML = html;
-        updateNav();
-        startTimer();
+        document.getElementById('qDisplay').innerHTML = html;
+    }
+
+    function saveAns(val) {
+        let hidden = document.querySelector(`input[name="q${currentIdx}"]`) || document.createElement('input');
+        hidden.type = 'radio'; hidden.name = 'q'+currentIdx; hidden.value = val; hidden.checked = true; hidden.className = 'hide';
+        document.body.appendChild(hidden); updateNav();
     }
 
     function updateNav() {
-        let html = "<strong>Progress:</strong><br>";
+        let html = "";
         selectedQuestions.forEach((q, i) => {
             let answered = document.querySelector(`input[name="q${i}"]:checked`);
-            html += `<div class="status-box ${answered ? 'answered' : ''}">${i+1}</div>`;
+            html += `<div class="q-nav ${answered ? 'answered' : ''}" onclick="jumpTo(${i})">${i+1}</div>`;
         });
         document.getElementById('qMap').innerHTML = html;
     }
 
+    function jumpTo(i) { currentIdx = i; renderQ(); }
+    function nextQ() { if(currentIdx < selectedQuestions.length -1) { currentIdx++; renderQ(); } }
+    function prevQ() { if(currentIdx > 0) { currentIdx--; renderQ(); } }
+
     function startTimer() {
         let t = 1500;
-        let int = setInterval(() => {
-            t--;
-            document.getElementById("timer").innerText = `Time Left: ${Math.floor(t/60)}:${t%60}`;
-            if(t <= 0) { clearInterval(int); submitExam(); }
-        }, 1000);
+        setInterval(() => { t--; document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) submitExam(); }, 1000);
     }
 
     function submitExam() {
-        let score = 0, date = new Date().toLocaleDateString('en-GB');
-        let report = "";
+        let score = 0, report = "";
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
             if(sel === q.answer) score++;
-            report += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
-            q.options.forEach(opt => {
-                let cls = (opt === q.answer) ? "correct" : (opt === sel ? "wrong" : "");
-                report += `<div class="${cls}">${opt} ${opt === q.answer ? '✓' : (opt === sel ? '✗' : '')}</div>`;
-            });
-            report += `</div>`;
+            report += `<div style="margin-bottom:20px;"><strong>Q${i+1}: ${q.question}</strong><br>${q.options.map(o => `<div style="${o==q.answer?'color:green; font-weight:bold':'color:red; font-weight:bold'}">${o} ${o==q.answer?'✓':''}</div>`).join('')}</div>`;
         });
-
-        document.getElementById("pdfMetadata").innerHTML = `
-            <strong>Student:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}<br>
-            <strong>Subject:</strong> SST | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Set:</strong> ${setCode}<br>
-            <strong>Date:</strong> ${date} | <strong>Score:</strong> ${score}/20`;
-
+        document.getElementById("pdfMetadata").innerHTML = `Name: ${document.getElementById("sName").value} | Class: ${document.getElementById("sClass").value} | Score: ${score}/20`;
         document.getElementById("finalReport").innerHTML = report;
-        document.getElementById("examSection").classList.add("hide");
+        document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
     }
 </script>
-</body>
-</html>
 </body>
 </html>

@@ -6,29 +6,41 @@
     <style>
         body { font-family: 'Times New Roman', serif; background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); padding: 20px; min-height: 100vh; }
         .card { background: white; padding: 25px; max-width: 800px; margin: auto; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
-        .fixed-nav { position: sticky; top: 0; background: #fff; padding: 10px; border-bottom: 2px solid #0b5ea8; z-index: 100; margin-bottom: 15px; }
-        .status-box { display: inline-block; width: 30px; height: 30px; text-align: center; line-height: 30px; margin: 3px; border: 1px solid #ccc; font-weight: bold; }
+        
+        /* Sticky Header for Exam */
+        .exam-header { position: sticky; top: 0; background: white; padding: 15px; border-bottom: 2px solid #0b5ea8; z-index: 100; }
+        
+        .status-box { display: inline-block; width: 25px; height: 25px; text-align: center; line-height: 25px; margin: 2px; border: 1px solid #ccc; font-size: 10px; font-weight: bold; }
         .answered { background: #28a745; color: white; }
         .unanswered { background: #dc3545; color: white; }
-        .btn { padding: 12px 25px; background: #0b5ea8; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        
+        .btn { padding: 10px 20px; background: #0b5ea8; color: white; border: none; cursor: pointer; border-radius: 5px; }
         .q-block { margin-bottom: 20px; padding: 10px; }
         .option { padding: 5px; margin: 2px; border: 1px solid #eee; }
         .correct { font-weight: bold; color: green; }
         .wrong { font-weight: bold; color: red; }
-        .hide { display: none; }
         
-        /* PDF Print Styles: Removes Background Colors */
         @media print {
             body { background: white; }
             .card { box-shadow: none; border: none; }
-            .no-print, .fixed-nav, .btn { display: none; }
-            .option { border: 1px solid #000; }
+            .no-print, .btn { display: none; }
+            .exam-header { position: static; border-bottom: 1px solid #000; }
         }
     </style>
 </head>
 <body>
 
 <div class="card">
+    <div id="academyHeader" class="hide">
+        <div style="text-align:center;">
+            <img src="YOUR_LOGO_URL" style="width:80px;"><br>
+            <strong>SST ACADEMY | www.YOURSITE.com</strong><br>
+            Subject: SST | Class: <span id="dispClass"></span> | Date: <span id="dispDate"></span><br>
+            Set Code: <span id="dispSet"></span> | Full Marks: 20 | Marks Secured: <span id="dispScore">-</span>
+        </div>
+        <hr>
+    </div>
+
     <div id="loginSection">
         <h2>SST ACADEMY LOGIN</h2>
         <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:8px;"><br><br>
@@ -44,19 +56,16 @@
     </div>
 
     <div id="examSection" class="hide">
-        <div id="timer" style="color:red; font-weight:bold;">Time: 25:00</div>
-        <div class="fixed-nav" id="qMap"></div>
+        <div class="exam-header">
+            <div id="timer" style="color:red; font-weight:bold; font-size:1.2em;">Time: 25:00</div>
+            <div id="qMap"></div>
+        </div>
         <div id="questionsContainer"></div>
         <button class="btn" onclick="submitExam()">SUBMIT FINAL</button>
     </div>
 
     <div id="resultSection" class="hide">
-        <div id="printArea">
-            <h2 style="text-align:center;">OFFICIAL SCORECARD</h2>
-            <div id="studentDetails"></div>
-            <hr>
-            <div id="finalReport"></div>
-        </div>
+        <div id="finalReport"></div>
         <button class="no-print btn" onclick="window.print()">PRINT / SAVE PDF</button>
         <button class="no-print btn" onclick="location.reload()">RETEST</button>
     </div>
@@ -3693,7 +3702,7 @@
 };
 
 
- let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000), selectedChaps = [];
+let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000), selectedChaps = [];
 
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
@@ -3710,6 +3719,11 @@
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
         selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
 
+        // Populate Sticky Header
+        document.getElementById('dispClass').innerText = document.getElementById('sClass').value;
+        document.getElementById('dispDate').innerText = new Date().toLocaleDateString('en-GB');
+        document.getElementById('dispSet').innerText = setCode;
+        
         let html = "";
         selectedQuestions.forEach((q, i) => {
             html += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
@@ -3718,8 +3732,10 @@
         });
         document.getElementById("questionsContainer").innerHTML = html;
         document.getElementById("loginSection").classList.add("hide");
+        document.getElementById("academyHeader").classList.remove("hide");
         document.getElementById("examSection").classList.remove("hide");
         updateNav();
+        startTimer();
     }
 
     function updateNav() {
@@ -3731,9 +3747,17 @@
         document.getElementById('qMap').innerHTML = mapHtml;
     }
 
+    function startTimer() {
+        let t = 1500;
+        let timerInt = setInterval(() => {
+            t--;
+            document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`;
+            if(t <= 0) { clearInterval(timerInt); submitExam(); }
+        }, 1000);
+    }
+
     function submitExam() {
         let score = 0;
-        let dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         let report = "";
         
         selectedQuestions.forEach((q, i) => {
@@ -3747,17 +3771,18 @@
             report += `</div>`;
         });
 
-        document.getElementById("studentDetails").innerHTML = `
-            <b>Subject:</b> Social Studies | <b>Date:</b> ${dateStr} | <b>Set:</b> ${setCode}<br>
-            <b>Class:</b> ${document.getElementById("sClass").value} | <b>Chapters:</b> ${selectedChaps.join(", ")}<br>
-            <b>Full Marks:</b> 20 | <b>Marks Secured:</b> ${score}`;
-
+        document.getElementById('dispScore').innerText = score + "/20";
         document.getElementById("finalReport").innerHTML = report;
         document.getElementById("examSection").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
         
-        // Push data to Google Sheet
-        fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, score: score + "/20", set: setCode }) });
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ 
+            name: document.getElementById("sName").value, 
+            roll: document.getElementById("sRoll").value, 
+            class: document.getElementById("sClass").value, 
+            score: score + "/20", 
+            set: setCode 
+        }) });
     }
 </script>
 </body>

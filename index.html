@@ -14,8 +14,15 @@
         /* Separate boxes for details and chapters */
 .details-box { background: #fdfdfd; border: 2px solid #333; padding: 15px; margin-bottom: 10px; }
 .chapter-box-ui { background: #eef6ff; border: 2px dashed #0b5ea8; padding: 15px; margin-bottom: 20px; font-weight: bold; }
-        .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
-        .answered { background: #28a745; color: white; }
+        /* Replace your old .q-nav and .answered lines with these: */
+        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
+        .unanswered { border-color: #dc3545; color: #dc3545; } /* Red */
+        .answered { background: #28a745; color: white; border-color: #28a745; } /* Green */
+        .visited { background: #fd7e14; color: white; border-color: #fd7e14; } /* Orange */
+
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; font-size: 12px; }
+        .leg-item { display: flex; align-items: center; gap: 5px; }
+        .box { width: 15px; height: 15px; border: 1px solid #000; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
     </style>
@@ -3767,15 +3774,30 @@ function renderMeta(targetId, score = null) {
         document.body.appendChild(hidden); updateNav();
     }
 
-    function updateNav() {
-        let html = "";
-        selectedQuestions.forEach((q, i) => {
-            let answered = document.querySelector(`input[name="q${i}"]:checked`);
-            html += `<div class="q-nav ${answered ? 'answered' : ''}" onclick="jumpTo(${i})">${i+1}</div>`;
-        });
-        document.getElementById('qMap').innerHTML = html;
-    }
+ // Add this variable at the top with your others: 
+// let visited = new Set(); 
 
+function updateNav() {
+    let html = "";
+    selectedQuestions.forEach((q, i) => {
+        let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
+        let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
+        html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
+    });
+    // Add legend below map
+    html += `
+        <div class="legend">
+            <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unans</div>
+            <div class="leg-item"><div class="box" style="background:#28a745"></div> Ans</div>
+            <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
+        </div>`;
+    document.getElementById('qMap').innerHTML = html;
+}
+
+function visitQ(i) {
+    visited.add(i); // Mark as visited
+    jumpTo(i);
+}
     function jumpTo(i) { currentIdx = i; renderQ(); }
     function nextQ() { if(currentIdx < selectedQuestions.length - 1) { currentIdx++; renderQ(); } }
     function prevQ() { if(currentIdx > 0) { currentIdx--; renderQ(); } }

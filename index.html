@@ -6,7 +6,15 @@
     <style>
         :root { --primary: #0b5ea8; }
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
-        .cbt-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; }
+        .cbt-header { 
+    background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); 
+    color: white; 
+    padding: 15px 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 3px double #000; 
+}
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
@@ -30,8 +38,14 @@
 <body>
 
 <header class="cbt-header">
-    <div><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s320/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height:65px; vertical-align:middle;"> <strong>MY SST ACADEMY</strong></div>
-    <div id="timerDisplay">Time: 25:00</div>
+    <div style="display: flex; align-items: center;">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s320/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height:65px; margin-right: 15px;">
+        <div style="line-height: 1.2;">
+            <strong style="font-size: 45px; display: block;">MY SST ACADEMY</strong>
+            <span style="font-size: 20px;">Excellence in Social Science</span>
+        </div>
+    </div>
+    <div id="timerDisplay" style="font-weight: bold; font-size: 18px;">Time: 25:00</div>
 </header>
 
 <div class="cbt-workspace" id="examUI">

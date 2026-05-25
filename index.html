@@ -3724,7 +3724,9 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     }
 
     function renderMeta(targetId, score = null) {
-        const d = new Date().toLocaleDateString();
+        // Replace the old 'const d' line with these three lines:
+const today = new Date();
+const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         let chapterList = selectedChaps.map(ch => `<li>${ch}</li>`).join('');
         const html = `
             <div class="details-box">

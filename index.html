@@ -2,57 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SST Examination Portal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SST Official Examination Portal</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); background-attachment: fixed; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; }
-        .container { width: 100%; max-width: 700px; }
-        .card { background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); margin-top: 20px; }
-        .logo { width: 120px; margin-bottom: 10px; }
-        h1 { color: white; margin: 5px 0; }
-        h2 { color: #0b5ea8; border-bottom: 2px solid #0b5ea8; padding-bottom: 10px; }
-        input, select { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #0b5ea8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .question { margin-bottom: 20px; padding: 15px; border-left: 4px solid #0b5ea8; background: #f9f9f9; border-radius: 5px; }
-        .hide { display: none; }
-        @media print { body { background: white; } .card { box-shadow: none; border: none; } button, #loginBox { display: none; } }
+        body { font-family: 'Times New Roman', serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
+        .portal-header { text-align: center; border-bottom: 3px solid #0b5ea8; padding-bottom: 20px; margin-bottom: 20px; }
+        .card { background: white; border: 1px solid #ccc; padding: 30px; max-width: 800px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .chapter-list { border: 1px solid #0b5ea8; padding: 15px; height: 150px; overflow-y: auto; background: #eef7ff; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #0b5ea8; color: white; }
+        .correct { color: green; font-weight: bold; }
+        .wrong { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div style="text-align: center;">
-        <img src="YOUR_LOGO_URL_HERE" class="logo" alt="Site Logo">
+<div class="card">
+    <div class="portal-header">
         <h1>SST EXAMINATION PORTAL</h1>
+        <p>Government Assessment System</p>
     </div>
 
-    <div class="card" id="loginBox">
+    <div id="loginBox">
         <h2>Student Authentication</h2>
         <input type="text" id="studentName" placeholder="Full Name">
-        <input type="text" id="studentRoll" placeholder="Roll Number">
         <select id="studentClass" onchange="loadChapters()">
             <option value="">Select Class</option>
             <option value="6">Class 6</option>
-            <option value="7">Class 7</option>
-            <option value="8">Class 8</option>
-            <option value="9">Class 9</option>
-            <option value="10">Class 10</option>
         </select>
-        <div id="chapterBox"></div>
-        <button onclick="startTest()">Proceed to Examination</button>
+        <p><strong>Select Chapters:</strong></p>
+        <div id="chapterBox" class="chapter-list"></div>
+        <button onclick="startTest()">START ASSESSMENT</button>
     </div>
 
-    <div class="card hide" id="examBox">
-        <h2 id="timer">Time: 25:00</h2>
-        <div id="questionsContainer"></div>
-        <button onclick="submitExam()">Submit Assessment</button>
-    </div>
-
-    <div class="card hide" id="resultBox">
-        <h2>Official Scorecard</h2>
-        <div id="resultData"></div>
-        <button onclick="window.print()">Print Result</button>
-    </div>
+    <div id="appView" class="hide"></div>
 </div>
 
 <script>
@@ -3684,16 +3667,7 @@
 };
 
 
-    let selectedQuestions = [], timer, activeChapters = [];
-
-    // Fisher-Yates Shuffle
-    function shuffle(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
+  let selectedQuestions = [];
 
     function loadChapters() {
         const sc = document.getElementById("studentClass").value;
@@ -3707,49 +3681,35 @@
     }
 
     function startTest() {
-        document.getElementById("loginBox").classList.add("hide");
-        document.getElementById("examBox").classList.remove("hide");
-        
-        const sc = document.getElementById("studentClass").value;
-        activeChapters = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
+        const selected = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
-        activeChapters.forEach(ch => pool = pool.concat(questionBank[sc][ch]));
-        selectedQuestions = shuffle(pool).slice(0, 20);
-        
-        let html = "";
-        selectedQuestions.forEach((q, i) => {
-            // Shuffle all 4 options
-            let opts = shuffle([...q.options]);
-            html += `<div class="question"><p>Q${i+1}: ${q.question}</p>`;
-            opts.forEach(opt => html += `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label><br>`);
-            html += `</div>`;
-        });
-        document.getElementById("questionsContainer").innerHTML = html;
+        selected.forEach(ch => pool = pool.concat(questionBank[document.getElementById("studentClass").value][ch]));
+        selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
 
-        let t = 1500;
-        timer = setInterval(() => {
-            t--;
-            document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`;
-            if(t <= 0) submitExam();
-        }, 1000);
+        let html = "<h2>Assessment in Progress</h2>";
+        selectedQuestions.forEach((q, i) => {
+            let opts = q.options.sort(() => Math.random() - 0.5);
+            html += `<p><b>Q${i+1}: ${q.question}</b></p>`;
+            opts.forEach(opt => html += `<label><input type="radio" name="q${i}" value="${opt}"> ${opt}</label><br>`);
+        });
+        html += `<button onclick="submitExam()">SUBMIT FINAL</button>`;
+        document.getElementById("appView").innerHTML = html;
+        document.getElementById("loginBox").classList.add("hide");
+        document.getElementById("appView").classList.remove("hide");
     }
 
     function submitExam() {
-        clearInterval(timer);
         let score = 0;
+        let table = "<table><tr><th>Q#</th><th>Question</th><th>Your Answer</th><th>Correct Answer</th></tr>";
         selectedQuestions.forEach((q, i) => {
-            const sel = document.querySelector(`input[name="q${i}"]:checked`);
-            if(sel && sel.value === q.answer) score++;
+            const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+            if (sel === q.answer) score++;
+            table += `<tr><td>${i+1}</td><td>${q.question}</td>
+                      <td class="${sel===q.answer?'correct':'wrong'}">${sel || 'Not Answered'}</td>
+                      <td>${q.answer}</td></tr>`;
         });
-        
-        const date = new Date().toLocaleDateString();
-        document.getElementById("examBox").classList.add("hide");
-        document.getElementById("resultBox").classList.remove("hide");
-        document.getElementById("resultData").innerHTML = `
-            <p><strong>Date:</strong> ${date}</p>
-            <p><strong>Chapters Tested:</strong> ${activeChapters.join(", ")}</p>
-            <h3>Final Score: ${score}/20 (${(score/20)*100}%)</h3>
-        `;
+        table += "</table>";
+        document.getElementById("appView").innerHTML = `<h2>Official Scorecard</h2><p>Score: ${score}/20</p>` + table + `<button onclick="window.print()">PRINT CERTIFICATE</button>`;
     }
 </script>
 </body>

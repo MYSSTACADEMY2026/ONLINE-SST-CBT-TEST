@@ -8,10 +8,10 @@
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
         .cbt-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; }
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
-        .canvas { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
+        .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        .exam-meta { background: #eee; padding: 10px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
-        .q-nav { width: 35px; height: 35px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
+        .exam-meta { background: #eee; padding: 10px; margin-bottom: 15px; border-left: 5px solid var(--primary); font-size: 14px; }
+        .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
@@ -20,7 +20,7 @@
 <body>
 
 <header class="cbt-header">
-    <div><img src="YOUR_LOGO_URL" style="height:30px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
+    <div><img src="YOUR_LOGO_URL" style="height:35px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
     <div id="timerDisplay">Time: 25:00</div>
 </header>
 
@@ -40,9 +40,11 @@
         <div id="examSection" class="hide">
             <div id="metaBox" class="exam-meta"></div>
             <div id="qDisplay"></div>
-            <button class="btn" onclick="prevQ()">PREVIOUS</button>
-            <button class="btn" onclick="nextQ()">NEXT</button>
-            <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            <div style="margin-top:20px;">
+                <button class="btn" onclick="prevQ()">PREVIOUS</button>
+                <button class="btn" onclick="nextQ()">NEXT</button>
+                <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            </div>
         </div>
     </main>
     <aside class="sidebar">
@@ -53,7 +55,7 @@
 
 <div id="resultSection" class="hide" style="padding:40px; background:white;">
     <div id="reportContent">
-        <div style="text-align:center;"><h2>SST ACADEMY REPORT CARD</h2></div>
+        <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:80px;"><h2>SST ACADEMY SCORECARD</h2></div>
         <div id="finalMeta" class="exam-meta"></div>
         <div id="finalReport"></div>
     </div>
@@ -3692,14 +3694,21 @@
 
 let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000);
 
+    function loadChapters() {
+        const sc = document.getElementById("sClass").value;
+        const box = document.getElementById("chapterBox");
+        box.innerHTML = "";
+        if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
+    }
+
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
         selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
         
-        const meta = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(', ')}`;
-        document.getElementById("metaBox").innerHTML = meta;
+        const metaInfo = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(', ')}`;
+        document.getElementById("metaBox").innerHTML = metaInfo;
         
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
@@ -3723,18 +3732,37 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         document.body.appendChild(hidden); updateNav();
     }
 
+    function updateNav() {
+        let html = "";
+        selectedQuestions.forEach((q, i) => {
+            let answered = document.querySelector(`input[name="q${i}"]:checked`);
+            html += `<div class="q-nav ${answered ? 'answered' : ''}" onclick="jumpTo(${i})">${i+1}</div>`;
+        });
+        document.getElementById('qMap').innerHTML = html;
+    }
+
+    function jumpTo(i) { currentIdx = i; renderQ(); }
+    function nextQ() { if(currentIdx < selectedQuestions.length - 1) { currentIdx++; renderQ(); } }
+    function prevQ() { if(currentIdx > 0) { currentIdx--; renderQ(); } }
+
+    function startTimer() {
+        let t = 1500;
+        let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
+    }
+
     function submitExam() {
         let score = 0, report = "";
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
             if(sel === q.answer) score++;
-            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>
-            Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span><br>
-            Correct Answer: ${q.answer}</div>`;
+            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span><br>Correct Answer: ${q.answer}</div>`;
         });
         
-        const meta = `Name: ${document.getElementById("sName").value} | Roll: ${document.getElementById("sRoll").value} | Score: ${score}/20 | Chapters: ${selectedChaps.join(', ')}`;
-        document.getElementById("finalMeta").innerHTML = meta;
+        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: score + "/20", set: setCode };
+        
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+
+        document.getElementById("finalMeta").innerHTML = `Name: ${data.name} | Roll: ${data.roll} | Class: ${data.class} | Score: ${data.score} | Chapters: ${data.chapters}`;
         document.getElementById("finalReport").innerHTML = report;
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");

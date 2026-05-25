@@ -3714,6 +3714,7 @@
 };
 
 let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), userScore = 0;
+    let visited = new Set(); // FIXED: Initialized the visited set
 
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
@@ -3722,29 +3723,24 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
     }
 
-function renderMeta(targetId, score = null) {
-    const d = new Date().toLocaleDateString();
-    
-    // Convert selected chapters into a bulleted list
-    let chapterList = selectedChaps.map(ch => `<li>${ch}</li>`).join('');
-    
-    const html = `
-        <div class="details-box">
-            <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
-            <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
-            <strong>Class:</strong> ${document.getElementById("sClass").value} | 
-            <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
-            ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
-        </div>
-        <div class="chapter-box-ui">
-            <strong>SELECTED CHAPTERS:</strong>
-            <ul style="margin: 5px 0; padding-left: 20px;">
-                ${chapterList}
-            </ul>
-        </div>
-    `;
-    document.getElementById(targetId).innerHTML = html;
-}
+    function renderMeta(targetId, score = null) {
+        const d = new Date().toLocaleDateString();
+        let chapterList = selectedChaps.map(ch => `<li>${ch}</li>`).join('');
+        const html = `
+            <div class="details-box">
+                <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
+                <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
+                <strong>Class:</strong> ${document.getElementById("sClass").value} | 
+                <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
+                ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
+            </div>
+            <div class="chapter-box-ui">
+                <strong>SELECTED CHAPTERS:</strong>
+                <ul style="margin: 5px 0; padding-left: 20px;">${chapterList}</ul>
+            </div>
+        `;
+        document.getElementById(targetId).innerHTML = html;
+    }
 
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
@@ -3754,6 +3750,7 @@ function renderMeta(targetId, score = null) {
         renderMeta("metaBox");
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
+        visited.add(0); // Mark first question visited
         renderQ(); updateNav(); startTimer();
     }
 
@@ -3774,33 +3771,25 @@ function renderMeta(targetId, score = null) {
         document.body.appendChild(hidden); updateNav();
     }
 
- // Add this variable at the top with your others: 
-// let visited = new Set(); 
+    function updateNav() {
+        let html = "";
+        selectedQuestions.forEach((q, i) => {
+            let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
+            let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
+            html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
+        });
+        html += `
+            <div class="legend">
+                <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unans</div>
+                <div class="leg-item"><div class="box" style="background:#28a745"></div> Ans</div>
+                <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
+            </div>`;
+        document.getElementById('qMap').innerHTML = html;
+    }
 
-function updateNav() {
-    let html = "";
-    selectedQuestions.forEach((q, i) => {
-        let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
-        let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
-        html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
-    });
-    // Add legend below map
-    html += `
-        <div class="legend">
-            <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unans</div>
-            <div class="leg-item"><div class="box" style="background:#28a745"></div> Ans</div>
-            <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
-        </div>`;
-    document.getElementById('qMap').innerHTML = html;
-}
-
-function visitQ(i) {
-    visited.add(i); // Mark as visited
-    jumpTo(i);
-}
-    function jumpTo(i) { currentIdx = i; renderQ(); }
-    function nextQ() { if(currentIdx < selectedQuestions.length - 1) { currentIdx++; renderQ(); } }
-    function prevQ() { if(currentIdx > 0) { currentIdx--; renderQ(); } }
+    function visitQ(i) { visited.add(i); currentIdx = i; renderQ(); updateNav(); }
+    function nextQ() { if(currentIdx < selectedQuestions.length - 1) { currentIdx++; visited.add(currentIdx); renderQ(); updateNav(); } }
+    function prevQ() { if(currentIdx > 0) { currentIdx--; visited.add(currentIdx); renderQ(); updateNav(); } }
 
     function startTimer() {
         let t = 1500;
@@ -3817,10 +3806,8 @@ function visitQ(i) {
         });
         renderMeta("finalMeta", userScore);
         document.getElementById("finalReport").innerHTML = report;
-        
         const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: userScore + "/20", set: setCode };
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-        
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
     }

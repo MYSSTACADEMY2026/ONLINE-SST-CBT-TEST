@@ -9,9 +9,9 @@
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
         .cbt-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; }
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
-        .canvas { flex: 1; padding: 20px; overflow-y: auto; background: #fff; }
+        .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        .q-nav { width: 35px; height: 35px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
+        .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
@@ -20,7 +20,7 @@
 <body>
 
 <header class="cbt-header">
-    <div><img src="YOUR_LOGO_URL" style="height:30px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
+    <div><img src="YOUR_LOGO_URL" style="height:35px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
     <div id="timerDisplay">Time: 25:00</div>
 </header>
 
@@ -32,17 +32,18 @@
             <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;">
                 <option value="">Select Class</option>
-                <option value="6">Class 6</option><option value="7">Class 7</option>
-                <option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option>
+                <option value="6">Class 6</option><option value="10">Class 10</option>
             </select>
             <div id="chapterBox" style="margin:15px 0;"></div>
             <button class="btn" onclick="startTest()">START EXAMINATION</button>
         </div>
         <div id="examSection" class="hide">
             <div id="qDisplay"></div>
-            <button class="btn" onclick="prevQ()">PREVIOUS</button>
-            <button class="btn" onclick="nextQ()">NEXT</button>
-            <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            <div style="margin-top:20px;">
+                <button class="btn" onclick="prevQ()">PREVIOUS</button>
+                <button class="btn" onclick="nextQ()">NEXT</button>
+                <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            </div>
         </div>
     </main>
     <aside class="sidebar">
@@ -56,11 +57,12 @@
         <div style="text-align:center;">
             <img src="YOUR_LOGO_URL" style="width:80px;">
             <h2>SST ACADEMY SCORECARD</h2>
+            <p><i>"Excellence in Social Studies"</i></p>
         </div>
         <div id="pdfMetadata" style="border:1px solid #000; padding:10px; margin-bottom:20px; font-size:14px;"></div>
         <div id="finalReport"></div>
     </div>
-    <button class="btn" onclick="downloadPDF()">DOWNLOAD SCORECARD PDF</button>
+    <button class="btn" onclick="downloadPDF()">DOWNLOAD SCORECARD (PDF)</button>
 </div>
 
 <script>
@@ -3743,7 +3745,11 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function startTimer() {
         let t = 1500;
-        setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) submitExam(); }, 1000);
+        let timer = setInterval(() => {
+            t--;
+            document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`;
+            if(t <= 0) { clearInterval(timer); submitExam(); }
+        }, 1000);
     }
 
     function submitExam() {
@@ -3753,15 +3759,18 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
             if(sel === q.answer) score++;
             report += `<div style="margin-bottom:20px;"><strong>Q${i+1}: ${q.question}</strong><br>${q.options.map(o => `<div style="${o==q.answer?'color:green':'color:red'}">${o} ${o==q.answer?'✓':''}</div>`).join('')}</div>`;
         });
-        document.getElementById("pdfMetadata").innerHTML = `Name: ${document.getElementById("sName").value} | Roll: ${document.getElementById("sRoll").value} | Class: ${document.getElementById("sClass").value} | Chapters: ${selectedChaps.join(', ')} | Score: ${score}/20`;
+        
+        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: score + "/20", set: setCode };
+        
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+
+        document.getElementById("pdfMetadata").innerHTML = `Name: ${data.name} | Roll: ${data.roll} | Class: ${data.class} | Chapters: ${data.chapters} | Score: ${data.score} | Date: ${new Date().toLocaleDateString()}`;
         document.getElementById("finalReport").innerHTML = report;
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
     }
 
-    function downloadPDF() {
-        html2pdf().from(document.getElementById('pdfContent')).save('SST_Academy_Scorecard.pdf');
-    }
+    function downloadPDF() { html2pdf().from(document.getElementById('pdfContent')).save('SST_Scorecard.pdf'); }
 </script>
 </body>
 </html>

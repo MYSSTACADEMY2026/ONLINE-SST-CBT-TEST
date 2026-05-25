@@ -2,41 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SST ACADEMY EXAMINATION PORTAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SST ACADEMY EXAMINATION</title>
     <style>
-        body { font-family: 'Times New Roman', serif; background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); padding: 20px; min-height: 100vh; }
-        .card { background: white; padding: 25px; max-width: 800px; margin: auto; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
-        .exam-header { position: sticky; top: 0; background: white; padding: 10px; border-bottom: 2px solid #0b5ea8; z-index: 100; }
-        .status-box { display: inline-block; width: 30px; height: 30px; text-align: center; line-height: 30px; margin: 3px; border: 1px solid #ccc; font-weight: bold; }
-        .answered { background: #28a745; color: white; }
-        .unanswered { background: #dc3545; color: white; }
-        .btn { padding: 12px 25px; background: #0b5ea8; color: white; border: none; cursor: pointer; border-radius: 5px; }
-        .q-block { margin-bottom: 25px; padding: 10px; border-bottom: 1px solid #eee; }
-        .option { padding: 5px; border: 1px solid #ddd; margin: 2px; }
-        .correct { color: green; font-weight: bold; }
-        .wrong { color: red; font-weight: bold; }
-        .hide { display: none; }
+        body { font-family: 'Times New Roman', serif; background: #f4f4f4; margin: 0; padding: 10px; }
+        .card { background: white; padding: 20px; max-width: 800px; margin: auto; border: 2px solid #333; }
+        .univ-header { text-align: center; border-bottom: 3px double #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .univ-header img { width: 80px; }
+        .univ-header h1 { margin: 5px 0; font-size: 22px; text-transform: uppercase; }
+        
+        .exam-header { position: sticky; top: 0; background: white; padding: 10px; border-bottom: 2px solid #333; z-index: 100; }
+        .status-box { display: inline-block; width: 28px; height: 28px; text-align: center; line-height: 28px; margin: 2px; border: 1px solid #999; font-size: 12px; }
+        .answered { background: #0b5ea8; color: white; }
+        .unanswered { background: #eee; }
+        
+        .btn { width: 100%; padding: 12px; background: #333; color: white; border: none; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .q-block { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        .option { padding: 8px; border: 1px solid #ddd; margin: 3px 0; }
+        .correct { color: #006400; font-weight: bold; border-left: 5px solid #006400; }
+        .wrong { color: #8b0000; font-weight: bold; border-left: 5px solid #8b0000; }
+        
         @media print {
             body { background: white; }
+            .card { border: none; }
             .no-print, .exam-header, .btn { display: none !important; }
-            .card { box-shadow: none; border: none; }
         }
     </style>
 </head>
 <body>
 
 <div class="card">
+    <div class="univ-header" id="mainHeader">
+        <img src="YOUR_LOGO_URL" alt="Logo">
+        <h1>SST ACADEMY</h1>
+        <p><i>"Excellence in Social Studies" | Official Examination Portal</i></p>
+    </div>
+
     <div id="loginSection">
-        <img src="YOUR_LOGO_URL" style="width:100px; display:block; margin:auto;">
-        <h2>SST ACADEMY LOGIN</h2>
-        <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:8px;"><br><br>
-        <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:8px;"><br><br>
-        <select id="sClass" onchange="loadChapters()" style="width:100%; padding:8px;">
-            <option value="">Select Class</option>
-            <option value="6">Class 6</option><option value="7">Class 7</option>
-            <option value="8">Class 8</option><option value="9">Class 9</option>
-            <option value="10">Class 10</option>
-        </select>
+        <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+        <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
+        <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;"></select>
         <div id="chapterBox" style="margin:15px 0;"></div>
         <button class="btn" onclick="startTest()">START EXAM</button>
     </div>
@@ -51,12 +56,9 @@
     </div>
 
     <div id="resultSection" class="hide">
-        <div id="printArea">
-            <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:80px;"><h3>OFFICIAL SCORECARD</h3></div>
-            <div id="pdfHeaderData" style="border-bottom:2px solid #000; padding:10px;"></div>
-            <div id="finalReport"></div>
-        </div>
-        <button class="no-print btn" onclick="window.print()">PRINT / SAVE PDF</button>
+        <div id="pdfDetails" style="margin-bottom:20px; line-height:1.6;"></div>
+        <div id="finalReport"></div>
+        <button class="no-print btn" onclick="window.print()">PRINT / SAVE AS PDF</button>
         <button class="no-print btn" onclick="location.reload()">RETEST</button>
     </div>
 </div>
@@ -3694,6 +3696,7 @@
 
 let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000), selectedChaps = [];
 
+    // 2. INITIALIZATION
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
         const box = document.getElementById("chapterBox");
@@ -3703,6 +3706,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
         }
     }
 
+    // 3. START TEST LOGIC
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
@@ -3712,7 +3716,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
         let html = "";
         selectedQuestions.forEach((q, i) => {
             html += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
-            q.options.forEach(opt => html += `<label><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
+            q.options.sort(() => Math.random() - 0.5).forEach(opt => html += `<label class="option"><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
             html += `</div>`;
         });
         document.getElementById("questionsContainer").innerHTML = html;
@@ -3722,6 +3726,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
         startTimer();
     }
 
+    // 4. PROGRESS TRACKER
     function updateNav() {
         let mapHtml = "<strong>Progress:</strong><br>";
         selectedQuestions.forEach((q, i) => {
@@ -3731,6 +3736,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
         document.getElementById('qMap').innerHTML = mapHtml;
     }
 
+    // 5. TIMER
     function startTimer() {
         let t = 1500;
         let timer = setInterval(() => {
@@ -3740,6 +3746,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
         }, 1000);
     }
 
+    // 6. SUBMISSION & SCORECARD
     function submitExam() {
         let score = 0, dateStr = new Date().toLocaleDateString('en-GB');
         let report = "";
@@ -3754,7 +3761,7 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
             report += `</div>`;
         });
 
-        document.getElementById("pdfHeaderData").innerHTML = `
+        document.getElementById("pdfDetails").innerHTML = `
             <strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}<br>
             <strong>Subject:</strong> SST | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(", ")}<br>
             <strong>Date:</strong> ${dateStr} | <strong>Set:</strong> ${setCode} | <strong>Score:</strong> ${score}/20`;

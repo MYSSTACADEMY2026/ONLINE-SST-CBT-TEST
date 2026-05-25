@@ -3,63 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SST ACADEMY EXAMINATION</title>
+    <title>SST ACADEMY - Official Examination Portal</title>
     <style>
         body { font-family: 'Times New Roman', serif; background: #f4f4f4; margin: 0; padding: 10px; }
-        .card { background: white; padding: 20px; max-width: 800px; margin: auto; border: 2px solid #333; }
-        .univ-header { text-align: center; border-bottom: 3px double #333; padding-bottom: 10px; margin-bottom: 15px; }
-        .univ-header img { width: 80px; }
-        .univ-header h1 { margin: 5px 0; font-size: 22px; text-transform: uppercase; }
-        
-        .exam-header { position: sticky; top: 0; background: white; padding: 10px; border-bottom: 2px solid #333; z-index: 100; }
-        .status-box { display: inline-block; width: 28px; height: 28px; text-align: center; line-height: 28px; margin: 2px; border: 1px solid #999; font-size: 12px; }
-        .answered { background: #0b5ea8; color: white; }
-        .unanswered { background: #eee; }
-        
-        .btn { width: 100%; padding: 12px; background: #333; color: white; border: none; font-size: 16px; cursor: pointer; margin-top: 10px; }
-        .q-block { margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
-        .option { padding: 8px; border: 1px solid #ddd; margin: 3px 0; }
-        .correct { color: #006400; font-weight: bold; border-left: 5px solid #006400; }
-        .wrong { color: #8b0000; font-weight: bold; border-left: 5px solid #8b0000; }
-        
-        @media print {
-            body { background: white; }
-            .card { border: none; }
-            .no-print, .exam-header, .btn { display: none !important; }
-        }
+        .card { background: white; padding: 20px; max-width: 800px; margin: auto; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .header-section { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .sticky-head { position: sticky; top: 0; background: #fff; padding: 10px; border-bottom: 1px solid #000; z-index: 1000; }
+        .input-group { margin-bottom: 15px; }
+        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; }
+        .btn { width: 100%; padding: 12px; background: #000; color: white; border: none; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+        .q-block { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .option { padding: 8px; border: 1px solid #ddd; margin: 4px 0; }
+        .status-box { display: inline-block; width: 25px; height: 25px; text-align: center; line-height: 25px; margin: 2px; border: 1px solid #999; font-size: 11px; }
+        .answered { background: #000; color: #fff; }
+        .hide { display: none; }
+        @media print { .no-print { display: none !important; } }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <div class="univ-header" id="mainHeader">
-        <img src="YOUR_LOGO_URL" alt="Logo">
-        <h1>SST ACADEMY</h1>
-        <p><i>"Excellence in Social Studies" | Official Examination Portal</i></p>
+    <div class="header-section" id="brandHeader">
+        <img src="YOUR_LOGO_URL" style="width:70px;">
+        <h2 style="margin:5px 0;">SST ACADEMY</h2>
+        <p style="margin:0; font-style:italic;">"Excellence in Social Studies" | Official Examination Portal</p>
     </div>
 
-    <div id="loginSection">
-        <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
-        <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px; box-sizing:border-box;">
-        <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;"></select>
-        <div id="chapterBox" style="margin:15px 0;"></div>
-        <button class="btn" onclick="startTest()">START EXAM</button>
+    <div id="setupSection">
+        <div class="input-group"><input type="text" id="sName" placeholder="Full Name"></div>
+        <div class="input-group"><input type="text" id="sRoll" placeholder="Roll No"></div>
+        <div class="input-group"><select id="sClass" onchange="loadChapters()"><option value="">Select Class</option><option value="6">Class 6</option></select></div>
+        <div id="chapterBox" class="input-group"></div>
+        <button class="btn" onclick="startTest()">Start Examination</button>
     </div>
 
     <div id="examSection" class="hide">
-        <div class="exam-header">
+        <div class="sticky-head">
             <div id="timer" style="color:red; font-weight:bold;">Time: 25:00</div>
             <div id="qMap"></div>
         </div>
-        <div id="questionsContainer"></div>
-        <button class="btn" onclick="submitExam()">SUBMIT FINAL</button>
+        <div id="questionsContainer" style="margin-top:10px;"></div>
+        <button class="btn" onclick="submitExam()">Submit Final Paper</button>
     </div>
 
     <div id="resultSection" class="hide">
-        <div id="pdfDetails" style="margin-bottom:20px; line-height:1.6;"></div>
+        <div id="pdfMetadata" style="font-size:14px; margin-bottom:20px;"></div>
         <div id="finalReport"></div>
-        <button class="no-print btn" onclick="window.print()">PRINT / SAVE AS PDF</button>
-        <button class="no-print btn" onclick="location.reload()">RETEST</button>
+        <button class="btn no-print" onclick="window.print()">Print/Save Scorecard</button>
     </div>
 </div>
 
@@ -3696,59 +3686,53 @@
 
 let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000), selectedChaps = [];
 
-    // 2. INITIALIZATION
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
         const box = document.getElementById("chapterBox");
-        box.innerHTML = "";
-        if(questionBank[sc]) {
-            Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
-        }
+        box.innerHTML = "<strong>Select Chapters:</strong><br>";
+        if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
     }
 
-    // 3. START TEST LOGIC
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
-        selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
-
+        selectedQuestions = pool.slice(0, 20);
+        
+        document.getElementById("setupSection").classList.add("hide");
+        document.getElementById("examSection").classList.remove("hide");
+        
         let html = "";
         selectedQuestions.forEach((q, i) => {
             html += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
-            q.options.sort(() => Math.random() - 0.5).forEach(opt => html += `<label class="option"><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
+            q.options.forEach(opt => html += `<label class="option"><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
             html += `</div>`;
         });
         document.getElementById("questionsContainer").innerHTML = html;
-        document.getElementById("loginSection").classList.add("hide");
-        document.getElementById("examSection").classList.remove("hide");
         updateNav();
         startTimer();
     }
 
-    // 4. PROGRESS TRACKER
     function updateNav() {
-        let mapHtml = "<strong>Progress:</strong><br>";
+        let html = "<strong>Progress:</strong><br>";
         selectedQuestions.forEach((q, i) => {
             let answered = document.querySelector(`input[name="q${i}"]:checked`);
-            mapHtml += `<div class="status-box ${answered ? 'answered' : 'unanswered'}">${i+1}</div>`;
+            html += `<div class="status-box ${answered ? 'answered' : ''}">${i+1}</div>`;
         });
-        document.getElementById('qMap').innerHTML = mapHtml;
+        document.getElementById('qMap').innerHTML = html;
     }
 
-    // 5. TIMER
     function startTimer() {
         let t = 1500;
-        let timer = setInterval(() => {
+        let int = setInterval(() => {
             t--;
-            document.getElementById("timer").innerText = `Time: ${Math.floor(t/60)}:${t%60}`;
-            if(t <= 0) { clearInterval(timer); submitExam(); }
+            document.getElementById("timer").innerText = `Time Left: ${Math.floor(t/60)}:${t%60}`;
+            if(t <= 0) { clearInterval(int); submitExam(); }
         }, 1000);
     }
 
-    // 6. SUBMISSION & SCORECARD
     function submitExam() {
-        let score = 0, dateStr = new Date().toLocaleDateString('en-GB');
+        let score = 0, date = new Date().toLocaleDateString('en-GB');
         let report = "";
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
@@ -3756,24 +3740,22 @@ let selectedQuestions = [], setCode = "SET-" + Math.floor(Math.random() * 1000),
             report += `<div class="q-block"><strong>Q${i+1}: ${q.question}</strong><br>`;
             q.options.forEach(opt => {
                 let cls = (opt === q.answer) ? "correct" : (opt === sel ? "wrong" : "");
-                report += `<div class="option ${cls}">${opt} ${opt === q.answer ? '✓' : (opt === sel ? '✗' : '')}</div>`;
+                report += `<div class="${cls}">${opt} ${opt === q.answer ? '✓' : (opt === sel ? '✗' : '')}</div>`;
             });
             report += `</div>`;
         });
 
-        document.getElementById("pdfDetails").innerHTML = `
-            <strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}<br>
-            <strong>Subject:</strong> SST | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(", ")}<br>
-            <strong>Date:</strong> ${dateStr} | <strong>Set:</strong> ${setCode} | <strong>Score:</strong> ${score}/20`;
+        document.getElementById("pdfMetadata").innerHTML = `
+            <strong>Student:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}<br>
+            <strong>Subject:</strong> SST | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Set:</strong> ${setCode}<br>
+            <strong>Date:</strong> ${date} | <strong>Score:</strong> ${score}/20`;
 
         document.getElementById("finalReport").innerHTML = report;
         document.getElementById("examSection").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
-        
-        fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ 
-            name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, score: score + "/20", set: setCode 
-        }) });
     }
 </script>
+</body>
+</html>
 </body>
 </html>

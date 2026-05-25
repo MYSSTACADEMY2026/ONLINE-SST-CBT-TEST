@@ -7,12 +7,11 @@
         body { font-family: 'Times New Roman', serif; background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); padding: 20px; min-height: 100vh; color: #333; }
         .card { background: white; padding: 30px; max-width: 800px; margin: auto; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.3); }
         .header { text-align: center; border-bottom: 2px solid #0b5ea8; margin-bottom: 20px; }
+        .fixed-nav { position: sticky; top: 0; background: #fff; padding: 10px; border-bottom: 2px solid #0b5ea8; z-index: 100; margin-bottom: 15px; }
         .btn { padding: 12px 25px; background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); color: white; border: none; cursor: pointer; border-radius: 5px; margin: 5px; }
         .status-box { display: inline-block; width: 30px; height: 30px; text-align: center; line-height: 30px; margin: 3px; border: 1px solid #ccc; font-size: 0.8em; }
         .answered { background: #28a745; color: white; }
         .unanswered { background: #dc3545; color: white; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
         .hide { display: none; }
         @media print { .no-print { display: none; } }
     </style>
@@ -23,7 +22,6 @@
     <div class="header">
         <img src="YOUR_LOGO_URL" style="width:100px;">
         <h1>SST ACADEMY</h1>
-        <p><i>Excellence in Social Studies</i></p>
     </div>
 
     <div id="loginSection">
@@ -40,15 +38,14 @@
     </div>
 
     <div id="examSection" class="hide">
-        <div id="timer" style="color:red; font-weight:bold; text-align:center; font-size:1.5em;">Time: 25:00</div>
-        <div id="qMap" style="margin: 10px 0; text-align:center;"></div>
+        <div id="timer" style="color:red; font-weight:bold; text-align:center;">Time: 25:00</div>
+        <div class="fixed-nav" id="qMap"></div>
         <div id="questionsContainer"></div>
         <button class="btn" onclick="submitExam()">SUBMIT FINAL</button>
     </div>
 
     <div id="resultSection" class="hide">
         <div id="printArea">
-            <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:100px;"></div>
             <h2 style="text-align:center;">OFFICIAL SCORECARD</h2>
             <div id="studentDetails"></div>
             <div id="finalReport"></div>
@@ -3708,7 +3705,7 @@
 
         let html = "";
         selectedQuestions.forEach((q, i) => {
-            html += `<div style="margin-bottom:15px;">Q${i+1}: ${q.question}<br>`;
+            html += `<div style="margin-bottom:20px;">Q${i+1}: ${q.question}<br>`;
             q.options.sort(() => Math.random() - 0.5).forEach(opt => html += `<label><input type="radio" name="q${i}" value="${opt}" onclick="updateNav()"> ${opt}</label><br>`);
             html += `</div>`;
         });
@@ -3739,18 +3736,29 @@
 
     function submitExam() {
         let score = 0;
-        let report = "<table><tr><th>Q#</th><th>Your Ans</th><th>Correct</th></tr>";
+        const dateStr = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        
+        let report = "";
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
             if(sel === q.answer) score++;
-            report += `<tr><td>${i+1}</td><td>${sel || 'N/A'}</td><td>${q.answer}</td></tr>`;
+            
+            report += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc;">
+                <p><strong>Q${i+1}: ${q.question}</strong></p>
+                ${q.options.map(opt => {
+                    let color = "";
+                    if(opt === q.answer) color = "color:green; font-weight:bold;";
+                    else if(opt === sel && opt !== q.answer) color = "color:red; font-weight:bold;";
+                    return `<div style="${color}">${opt === sel ? (opt === q.answer ? '✅ ' : '❌ ') : ''}${opt}</div>`;
+                }).join('')}
+            </div>`;
         });
 
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, score: score + "/20", set: setCode }) });
 
         document.getElementById("examSection").classList.add("hide");
-        document.getElementById("studentDetails").innerHTML = `Name: ${document.getElementById("sName").value} | Roll: ${document.getElementById("sRoll").value}<br>Set: ${setCode} | Date: ${new Date().toLocaleString()}`;
-        document.getElementById("finalReport").innerHTML = `<h3>Final Score: ${score}/20</h3>` + report + "</table>";
+        document.getElementById("studentDetails").innerHTML = `Date: ${dateStr} | Name: ${document.getElementById("sName").value} | Roll: ${document.getElementById("sRoll").value}<br>Set: ${setCode}`;
+        document.getElementById("finalReport").innerHTML = `<h3>Final Score: ${score}/20</h3>` + report;
         document.getElementById("resultSection").classList.remove("hide");
     }
 </script>

@@ -10,7 +10,7 @@
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        .exam-meta { background: #eee; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--primary); font-size: 15px; }
+        .meta-box { background: #f9f9f9; border: 2px solid #333; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
@@ -38,7 +38,7 @@
             <button class="btn" onclick="startTest()">START EXAMINATION</button>
         </div>
         <div id="examSection" class="hide">
-            <div id="metaBox" class="exam-meta"></div>
+            <div id="metaBox" class="meta-box"></div>
             <div id="qDisplay"></div>
             <div style="margin-top:20px;">
                 <button class="btn" onclick="prevQ()">PREVIOUS</button>
@@ -55,8 +55,8 @@
 
 <div id="resultSection" class="hide" style="padding:40px; background:white;">
     <div id="reportContent">
-        <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:80px;"><h2>SST ACADEMY SCORECARD</h2></div>
-        <div id="finalMeta" class="exam-meta"></div>
+        <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:80px;"><h2>OFFICIAL SCORECARD</h2></div>
+        <div id="finalMeta" class="meta-box"></div>
         <div id="finalReport"></div>
     </div>
     <button class="btn" onclick="downloadHTML()">DOWNLOAD HTML REPORT</button>
@@ -3692,7 +3692,7 @@
 
 };
 
-let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000);
+let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), userScore = 0;
 
     function loadChapters() {
         const sc = document.getElementById("sClass").value;
@@ -3701,15 +3701,18 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
     }
 
+    function renderMeta(targetId, score = null) {
+        const d = new Date().toLocaleDateString();
+        const html = `<div>Date: ${d}</div><div>Set ID: ${setCode}</div><div>Name: ${document.getElementById("sName").value}</div><div>Roll: ${document.getElementById("sRoll").value}</div><div>Class: ${document.getElementById("sClass").value}</div><div>Chapters: ${selectedChaps.join(', ')}</div>${score !== null ? `<div>Full Marks: 20</div><div>Secured Marks: ${score}</div>` : ''}`;
+        document.getElementById(targetId).innerHTML = html;
+    }
+
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
         selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
-        
-        const metaInfo = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(', ')}`;
-        document.getElementById("metaBox").innerHTML = metaInfo;
-        
+        renderMeta("metaBox");
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
         renderQ(); updateNav(); startTimer();
@@ -3747,29 +3750,29 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function startTimer() {
         let t = 1500;
-        let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t <= 0) { clearInterval(timer); submitExam(); } }, 1000);
+        let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
     function submitExam() {
-        let score = 0, report = "";
+        userScore = 0;
+        let report = "";
         selectedQuestions.forEach((q, i) => {
             const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-            if(sel === q.answer) score++;
-            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span><br>Correct Answer: ${q.answer}</div>`;
+            if(sel === q.answer) userScore++;
+            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span> | Correct: ${q.answer}</div>`;
         });
-        
-        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: score + "/20", set: setCode };
-        
-        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-
-        document.getElementById("finalMeta").innerHTML = `Name: ${data.name} | Roll: ${data.roll} | Class: ${data.class} | Score: ${data.score} | Chapters: ${data.chapters}`;
+        renderMeta("finalMeta", userScore);
         document.getElementById("finalReport").innerHTML = report;
+        
+        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: userScore + "/20", set: setCode };
+        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+        
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");
     }
 
     function downloadHTML() {
-        const blob = new Blob([document.getElementById('reportContent').innerHTML], {type: 'text/html'});
+        const blob = new Blob([document.getElementById('reportContent').outerHTML], {type: 'text/html'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'SST_Scorecard.html'; a.click();
     }
 </script>

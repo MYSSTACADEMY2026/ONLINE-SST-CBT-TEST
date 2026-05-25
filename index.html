@@ -10,7 +10,7 @@
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        .exam-meta { background: #eee; padding: 10px; margin-bottom: 15px; border-left: 5px solid var(--primary); font-size: 14px; }
+        .exam-meta { background: #eee; padding: 15px; margin-bottom: 20px; border-left: 5px solid var(--primary); font-size: 15px; }
         .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
@@ -3707,7 +3707,7 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
         selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
         
-        const metaInfo = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(', ')}`;
+        const metaInfo = `<strong>Name:</strong> ${document.getElementById("sName").value} | <strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Chapters:</strong> ${selectedChaps.join(', ')}`;
         document.getElementById("metaBox").innerHTML = metaInfo;
         
         document.getElementById("setupSection").classList.add("hide");
@@ -3747,7 +3747,7 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function startTimer() {
         let t = 1500;
-        let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
+        let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t <= 0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
     function submitExam() {
@@ -3770,7 +3770,7 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function downloadHTML() {
         const blob = new Blob([document.getElementById('reportContent').innerHTML], {type: 'text/html'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Scorecard.html'; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'SST_Scorecard.html'; a.click();
     }
 </script>
 </body>

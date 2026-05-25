@@ -11,6 +11,9 @@
         .canvas { flex: 1; padding: 30px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         .meta-box { background: #f9f9f9; border: 2px solid #333; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* Separate boxes for details and chapters */
+.details-box { background: #fdfdfd; border: 2px solid #333; padding: 15px; margin-bottom: 10px; }
+.chapter-box-ui { background: #eef6ff; border: 2px dashed #0b5ea8; padding: 15px; margin-bottom: 20px; font-weight: bold; }
         .q-nav { width: 40px; height: 40px; border: 1px solid #999; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; }
         .answered { background: #28a745; color: white; }
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
@@ -38,7 +41,8 @@
             <button class="btn" onclick="startTest()">START EXAMINATION</button>
         </div>
         <div id="examSection" class="hide">
-            <div id="metaBox" class="meta-box"></div>
+            <div id="metaBox"></div>
+            
             <div id="qDisplay"></div>
             <div style="margin-top:20px;">
                 <button class="btn" onclick="prevQ()">PREVIOUS</button>
@@ -55,13 +59,18 @@
 
 <div id="resultSection" class="hide" style="padding:40px; background:white;">
     <div id="reportContent">
-        <div style="text-align:center;"><img src="YOUR_LOGO_URL" style="width:80px;"><h2>OFFICIAL SCORECARD</h2></div>
-        <div id="finalMeta" class="meta-box"></div>
+        <div style="text-align:center;">
+            <img src="YOUR_LOGO_URL" style="width:80px;">
+            <h2>OFFICIAL SCORECARD</h2>
+        </div>
+        
+        <div id="finalMeta"></div>
+        
         <div id="finalReport"></div>
     </div>
     <button class="btn" onclick="downloadHTML()">DOWNLOAD HTML REPORT</button>
 </div>
-
+    
 <script>
     // GOOGLE SCRIPT URL: Replace this with your URL
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz04fq1Lh25z4v077lB7Hh7_Ua3eDlo4IL9MPVpUrZA_dJNvd8jsX8GI8fGk94DFGONnQ/exec";
@@ -3701,11 +3710,23 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
     }
 
-    function renderMeta(targetId, score = null) {
-        const d = new Date().toLocaleDateString();
-        const html = `<div>Date: ${d}</div><div>Set ID: ${setCode}</div><div>Name: ${document.getElementById("sName").value}</div><div>Roll: ${document.getElementById("sRoll").value}</div><div>Class: ${document.getElementById("sClass").value}</div><div>Chapters: ${selectedChaps.join(', ')}</div>${score !== null ? `<div>Full Marks: 20</div><div>Secured Marks: ${score}</div>` : ''}`;
-        document.getElementById(targetId).innerHTML = html;
-    }
+function renderMeta(targetId, score = null) {
+    const d = new Date().toLocaleDateString();
+    // This creates the two separate boxes
+    const html = `
+        <div class="details-box">
+            <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
+            <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
+            <strong>Class:</strong> ${document.getElementById("sClass").value} | 
+            <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
+            ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
+        </div>
+        <div class="chapter-box-ui">
+            SELECTED CHAPTERS: ${selectedChaps.join(', ')}
+        </div>
+    `;
+    document.getElementById(targetId).innerHTML = html;
+}
 
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);

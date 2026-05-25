@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SST ACADEMY | OFFICIAL CBT PORTAL</title>
+    <title>MY SST ACADEMY | ONLINE SST COMPUTER BASED TEST (CBT)</title>
     <style>
         :root { --primary: #0b5ea8; }
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
@@ -23,7 +23,7 @@
 <body>
 
 <header class="cbt-header">
-    <div><img src="YOUR_LOGO_URL" style="height:35px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
+    <div><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s320/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height:35px; vertical-align:middle;"> <strong>SST ACADEMY</strong></div>
     <div id="timerDisplay">Time: 25:00</div>
 </header>
 
@@ -35,10 +35,14 @@
             <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;">
                 <option value="">Select Class</option>
-                <option value="6">Class 6</option><option value="10">Class 10</option>
+                <option value="6">Class 6</option>
+                <option value="7">Class 7</option>
+                <option value="8">Class 8</option>
+                <option value="9">Class 9</option>
+                <option value="10">Class 10</option>
             </select>
             <div id="chapterBox" style="margin:15px 0;"></div>
-            <button class="btn" onclick="startTest()">START EXAMINATION</button>
+            <button class="btn" onclick="startTest()">START TEST</button>
         </div>
         <div id="examSection" class="hide">
             <div id="metaBox"></div>
@@ -60,15 +64,16 @@
 <div id="resultSection" class="hide" style="padding:40px; background:white;">
     <div id="reportContent">
         <div style="text-align:center;">
-            <img src="YOUR_LOGO_URL" style="width:80px;">
-            <h2>OFFICIAL SCORECARD</h2>
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s320/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="width:80px;">
+            <h2>MY SST ACADEMY</h2>
+            <p style="font-size: 14px; color: #555; margin-top: -10px;">Excellence in Social Science</p>
         </div>
         
         <div id="finalMeta"></div>
         
         <div id="finalReport"></div>
     </div>
-    <button class="btn" onclick="downloadHTML()">DOWNLOAD HTML REPORT</button>
+    <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
 </div>
     
 <script>

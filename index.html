@@ -3822,7 +3822,7 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         });
         renderMeta("finalMeta", userScore);
         document.getElementById("finalReport").innerHTML = report;
-        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join(', '), score: userScore + "/20", set: setCode };
+        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join('\n'), score: userScore + "/20", set: setCode };
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
         document.getElementById("examUI").classList.add("hide");
         document.getElementById("resultSection").classList.remove("hide");

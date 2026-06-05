@@ -4421,12 +4421,28 @@
 let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), userScore = 0;
     let visited = new Set(); // FIXED: Initialized the visited set
 
-    function loadChapters() {
-        const sc = document.getElementById("sClass").value;
-        const box = document.getElementById("chapterBox");
-        box.innerHTML = "";
-        if(questionBank[sc]) Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
+function loadChapters() {
+    const sc = document.getElementById("sClass").value;
+    const box = document.getElementById("chapterBox");
+    box.innerHTML = "";
+    if(questionBank[sc]) {
+        // Add "Select All" checkbox
+        box.innerHTML += `<label style="font-weight:bold; color:#0b5ea8; cursor:pointer;">
+            <input type="checkbox" id="selectAllChaps" onclick="toggleAll(this)"> SELECT ALL CHAPTERS
+        </label><hr>`;
+        
+        // Add individual chapter checkboxes
+        Object.keys(questionBank[sc]).forEach(ch => 
+            box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`
+        );
     }
+}
+
+// Helper function to handle the Select All logic
+function toggleAll(source) {
+    const checkboxes = document.querySelectorAll('.chCheck');
+    checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+}
 
     function renderMeta(targetId, score = null) {
         // Replace the old 'const d' line with these three lines:

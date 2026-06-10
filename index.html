@@ -4562,10 +4562,62 @@ const data = {
     document.getElementById("resultSection").classList.remove("hide");
 }
 
-    function downloadHTML() {
-        const blob = new Blob([document.getElementById('reportContent').outerHTML], {type: 'text/html'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'SST_Scorecard.html'; a.click();
-    }
+   function downloadHTML() {
+    // 1. Capture dynamic content from your page
+    const sName = document.getElementById("sName").value || "Student";
+    const meta = document.getElementById('finalMeta').innerHTML;
+    const report = document.getElementById('finalReport').innerHTML;
+
+    // 2. Define the printable layout
+    const fullReportHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; }
+                
+                /* Header Layout */
+                .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; }
+                .logo { height: 80px; margin-right: 20px; }
+                .title-group { display: flex; flex-direction: column; }
+                .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
+                .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
+                
+                /* Student Details & Score Styling */
+                .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+                .score-bold { font-weight: bold; font-size: 20px; color: #dc3545; }
+            </style>
+        </head>
+        <body>
+            <div class="report-header">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" class="logo">
+                <div class="title-group">
+                    <h1 class="academy-name">MY SST ACADEMY</h1>
+                    <p class="tagline">Excellence in Social Science</p>
+                </div>
+            </div>
+
+            <div class="details-box">
+                <div style="font-size: 18px;">
+                    ${meta.replace('Marks Secured:', '<span class="score-bold">Marks Secured:</span>')}
+                </div>
+            </div>
+
+            <div>
+                <h3>Answer Key & Performance</h3>
+                ${report}
+            </div>
+        </body>
+        </html>
+    `;
+
+    // 3. Trigger Download
+    const blob = new Blob([fullReportHTML], {type: 'text/html'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `SST_Report_${sName}.html`;
+    a.click();
+}
 </script>
 </body>
 </html>

@@ -15,25 +15,23 @@
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
 
-        /* Candidate Details Box */
-        .details-box { 
-            background: #ffffff; border: 2px solid var(--primary); 
-            padding: 20px; border-radius: 10px; margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        /* Boxes */
+        .details-box { background: #ffffff; border: 2px solid var(--primary); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .chapter-box-ui { background: #eef6ff; border: 2px dashed var(--primary); padding: 15px; margin-bottom: 20px; font-weight: bold; }
 
         /* Pill Navigation Group */
+        .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
         .tablet-group { display: flex; border: 2px solid var(--primary); border-radius: 50px; overflow: hidden; background: white; }
         .btn-nav { padding: 12px 30px; cursor: pointer; border: none; background: white; color: var(--primary); font-weight: bold; transition: all 0.3s; }
         .btn-nav:first-child { border-right: 1px solid var(--primary); }
         .btn-nav:hover:not(:disabled) { background: var(--primary); color: white; }
-        .btn-nav:disabled { background: #e0e0e0; color: #aaa; cursor: not-allowed; }
+        .btn-nav:disabled { background: #e0e0e0 !important; color: #aaa; cursor: not-allowed; }
 
-        /* Submit Button (Red Pill with Hover) */
+        /* Submit Button (Red Pill) */
         .btn-submit { 
             padding: 12px 30px; cursor: pointer; border: 2px solid var(--danger); 
-            background: white; color: var(--danger); font-weight: bold; border-radius: 50px; 
-            transition: all 0.3s; margin-left: 20px;
+            background: white; color: var(--danger); text-transform: uppercase; 
+            font-weight: bold; border-radius: 50px; transition: all 0.3s;
         }
         .btn-submit:hover { background: var(--danger); color: white; }
 
@@ -101,39 +99,14 @@
 </div>
 
 <div id="resultSection" class="hide" style="padding: 40px; background: white;">
-    <h2>Test Results</h2>
-    <div id="finalMeta"></div> 
-    <div id="finalReport" style="margin-top:20px;"></div> 
+    <div id="reportContent">
+        <h2>Test Results</h2>
+        <div id="finalMeta"></div> 
+        <div id="finalReport" style="margin-top:20px;"></div> 
+    </div>
+    <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
     <button class="btn" onclick="window.location.reload()">RESTART TEST</button>
 </div>
-
-<script>
-    // Placeholder constants - Update these with your real logic
-    const GOOGLE_SCRIPT_URL = "YOUR_SCRIPT_URL_HERE";
-    let currentIdx = 0, selectedQuestions = [], selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), visited = new Set();
-
-    function updateNav() {
-        let html = "";
-        selectedQuestions.forEach((q, i) => {
-            let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
-            let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
-            html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
-        });
-
-        html += `
-            <div class="legend">
-                <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unanswered</div>
-                <div class="leg-item"><div class="box" style="background:#28a745"></div> Answered</div>
-                <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
-            </div>`;
-        document.getElementById('qMap').innerHTML = html;
-        document.getElementById('prevBtn').disabled = (currentIdx <= 0);
-        document.getElementById('nextBtn').disabled = (currentIdx >= selectedQuestions.length - 1);
-    }
-    
-    // (Ensure you include your loadChapters, startTest, renderQ, saveAns, visitQ, prevQ, nextQ, and submitExam functions here)
-</script>
-
 
 
   
@@ -4459,37 +4432,24 @@
 };
 
 let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), userScore = 0;
-    let visited = new Set(); // FIXED: Initialized the visited set
+    let visited = new Set();
 
-function loadChapters() {
-    const sc = document.getElementById("sClass").value;
-    const box = document.getElementById("chapterBox");
-    box.innerHTML = "";
-    if(questionBank[sc]) {
-        // Add "Select All" checkbox
-        box.innerHTML += `<label style="font-weight:bold; color:#0b5ea8; cursor:pointer;">
-            <input type="checkbox" id="selectAllChaps" onclick="toggleAll(this)"> SELECT ALL CHAPTERS
-        </label><hr>`;
-        
-        // Add individual chapter checkboxes
-        Object.keys(questionBank[sc]).forEach(ch => 
-            box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`
-        );
+    function loadChapters() {
+        const sc = document.getElementById("sClass").value;
+        const box = document.getElementById("chapterBox");
+        box.innerHTML = "";
+        if(questionBank[sc]) {
+            box.innerHTML += `<label style="font-weight:bold; color:#0b5ea8; cursor:pointer;"><input type="checkbox" id="selectAllChaps" onclick="toggleAll(this)"> SELECT ALL CHAPTERS</label><hr>`;
+            Object.keys(questionBank[sc]).forEach(ch => box.innerHTML += `<label><input type="checkbox" class="chCheck" value="${ch}"> ${ch}</label><br>`);
+        }
     }
-}
 
-// Helper function to handle the Select All logic
-function toggleAll(source) {
-    const checkboxes = document.querySelectorAll('.chCheck');
-    checkboxes.forEach(checkbox => checkbox.checked = source.checked);
-}
+    function toggleAll(source) { document.querySelectorAll('.chCheck').forEach(checkbox => checkbox.checked = source.checked); }
 
     function renderMeta(targetId, score = null) {
-        // Replace the old 'const d' line with these three lines:
-const today = new Date();
-const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+        const d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
         let chapterList = selectedChaps.map(ch => `<li>${ch}</li>`).join('');
-        const html = `
+        document.getElementById(targetId).innerHTML = `
             <div class="details-box">
                 <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
                 <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
@@ -4497,12 +4457,7 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
                 <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
                 ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
             </div>
-            <div class="chapter-box-ui">
-                <strong>SELECTED CHAPTERS:</strong>
-                <ul style="margin: 5px 0; padding-left: 20px;">${chapterList}</ul>
-            </div>
-        `;
-        document.getElementById(targetId).innerHTML = html;
+            <div class="chapter-box-ui"><strong>SELECTED CHAPTERS:</strong><ul style="margin: 5px 0; padding-left: 20px;">${chapterList}</ul></div>`;
     }
 
     function startTest() {
@@ -4513,7 +4468,7 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         renderMeta("metaBox");
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");
-        visited.add(0); // Mark first question visited
+        visited.add(0);
         renderQ(); updateNav(); startTimer();
     }
 
@@ -4522,8 +4477,7 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         const userAns = document.querySelector(`input[name="q${currentIdx}"]`)?.value;
         let html = `<h3>Question ${currentIdx + 1}</h3><p>${q.question}</p>`;
         q.options.forEach(opt => {
-            let checked = (userAns === opt) ? 'checked' : '';
-            html += `<label style="display:block; padding:10px; border:1px solid #ddd; margin:5px 0;"><input type="radio" name="mainQ" value="${opt}" ${checked} onchange="saveAns('${opt}')"> ${opt}</label>`;
+            html += `<label style="display:block; padding:10px; border:1px solid #ddd; margin:5px 0;"><input type="radio" name="mainQ" value="${opt}" ${(userAns === opt) ? 'checked' : ''} onchange="saveAns('${opt}')"> ${opt}</label>`;
         });
         document.getElementById('qDisplay').innerHTML = html;
     }
@@ -4538,16 +4492,12 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         let html = "";
         selectedQuestions.forEach((q, i) => {
             let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
-            let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
-            html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
+            html += `<div class="q-nav ${isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered')}" onclick="visitQ(${i})">${i+1}</div>`;
         });
-        html += `
-            <div class="legend">
-                <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unans</div>
-                <div class="leg-item"><div class="box" style="background:#28a745"></div> Ans</div>
-                <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
-            </div>`;
+        html += `<div class="legend"><div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unanswered</div><div class="leg-item"><div class="box" style="background:#28a745"></div> Answered</div><div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div></div>`;
         document.getElementById('qMap').innerHTML = html;
+        document.getElementById('prevBtn').disabled = (currentIdx <= 0);
+        document.getElementById('nextBtn').disabled = (currentIdx >= selectedQuestions.length - 1);
     }
 
     function visitQ(i) { visited.add(i); currentIdx = i; renderQ(); updateNav(); }
@@ -4559,46 +4509,19 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
-function submitExam() {
-    userScore = 0;
-    let report = "";
-    
-    // Calculate Score and Generate Report
-    selectedQuestions.forEach((q, i) => {
-        const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-        if(sel === q.answer) userScore++;
-        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;">
-            <strong>Q${i+1}: ${q.question}</strong><br>
-            Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
-            Correct: ${q.answer}
-        </div>`;
-    });
-
-    // 1. Render meta-data in the new result section
-    renderMeta("finalMeta", userScore);
-    
-    // 2. Put the report into the new result section
-    document.getElementById("finalReport").innerHTML = report;
-
-    // 3. Send data (Keep your existing fetch)
-    const data = { 
-        name: document.getElementById("sName").value, 
-        roll: document.getElementById("sRoll").value, 
-        class: document.getElementById("sClass").value, 
-        chapters: selectedChaps.join('\n'), 
-        score: userScore + "/20", 
-        set: setCode 
-    };
-    fetch(GOOGLE_SCRIPT_URL, { 
-        method: "POST", mode: "no-cors", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify(data) 
-    });
-
-    // 4. Hide the Exam UI and show the Result UI
-    document.getElementById("examUI").classList.add("hide");
-    document.getElementById("resultSection").classList.remove("hide");
-}
+    function submitExam() {
+        userScore = 0;
+        let report = "";
+        selectedQuestions.forEach((q, i) => {
+            const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+            if(sel === q.answer) userScore++;
+            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span> | Correct: ${q.answer}</div>`;
+        });
+        renderMeta("finalMeta", userScore);
+        document.getElementById("finalReport").innerHTML = report;
+        document.getElementById("examUI").classList.add("hide");
+        document.getElementById("resultSection").classList.remove("hide");
+    }
 
     function downloadHTML() {
         const blob = new Blob([document.getElementById('reportContent').outerHTML], {type: 'text/html'});

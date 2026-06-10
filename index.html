@@ -14,35 +14,33 @@
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         
-        /* Navigation Controls & Pill Style */
-        .nav-container { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
+        /* THE "TABLET" BUTTONS (PILL STYLE) */
+        .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
         .tablet-group { 
-            display: flex; background: #0b5ea8; border-radius: 50px; 
-            padding: 4px; box-shadow: 0 4px 0 #073d6d; overflow: hidden; 
+            display: flex; border: 2px solid #0b5ea8; border-radius: 50px; 
+            overflow: hidden; background: white;
         }
         .btn-nav { 
-            padding: 12px 30px; cursor: pointer; border: none; background: transparent; 
-            color: white; font-weight: bold; transition: 0.2s;
+            padding: 12px 30px; cursor: pointer; border: none; background: white; 
+            color: #0b5ea8; font-weight: bold; transition: all 0.3s;
         }
-        .btn-nav:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
-        .btn-nav:disabled { background: #888 !important; color: #ccc; cursor: not-allowed; }
+        .btn-nav:first-child { border-right: 1px solid #0b5ea8; }
+        .btn-nav:hover:not(:disabled) { background: #0b5ea8; color: white; }
+        .btn-nav:disabled { background: #e0e0e0 !important; color: #aaa; cursor: not-allowed; }
 
-        /* Submit Button */
+        /* SUBMIT BUTTON (RIGHT SIDE) */
         .btn-submit { 
             padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; 
             text-transform: uppercase; font-weight: bold; border-radius: 50px;
-            box-shadow: 0 4px 0 #a71d2a; transition: 0.2s;
+            transition: all 0.3s;
         }
-        .btn-submit:hover { background: #c82333; }
-        .btn-submit:active { transform: translateY(2px); box-shadow: 0 2px 0 #a71d2a; }
+        .btn-submit:hover { background: #b02a37; }
 
-        /* Question Progress Styles */
-        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; transition: 0.2s; }
-        .q-nav:hover { background: #eee; }
+        /* GENERAL UI */
+        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
         .unanswered { border-color: #dc3545; color: #dc3545; }
         .answered { background: #28a745; color: white; border-color: #28a745; }
         .visited { background: #fd7e14; color: white; border-color: #fd7e14; }
-
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
     </style>
@@ -82,10 +80,10 @@
             <div id="metaBox"></div>
             <div id="qDisplay"></div>
             
-            <div class="nav-container">
+            <div class="nav-controls">
                 <div class="tablet-group">
-                    <button id="prevBtn" class="btn-nav" onclick="prevQ()">« PREVIOUS</button>
-                    <button id="nextBtn" class="btn-nav" onclick="nextQ()">NEXT »</button>
+                    <button id="prevBtn" class="btn-nav" onclick="prevQ()">PREVIOUS</button>
+                    <button id="nextBtn" class="btn-nav" onclick="nextQ()">NEXT</button>
                 </div>
                 <button class="btn-submit" onclick="submitExam()">SUBMIT TEST</button>
             </div>
@@ -98,12 +96,14 @@
 </div>
 
 <script>
-    // Logic to handle inactive/active states
-    function updateNavState(currentQ, totalQ) {
-        document.getElementById('prevBtn').disabled = (currentQ === 1);
-        document.getElementById('nextBtn').disabled = (currentQ === totalQ);
+    // Logic for button states (Call this whenever you switch questions)
+    // Pass the current index and 20 as total questions
+    function updateButtonStates(currentQ, totalQ = 20) {
+        document.getElementById('prevBtn').disabled = (currentQ <= 1);
+        document.getElementById('nextBtn').disabled = (currentQ >= totalQ);
     }
 </script>
+
 
   
 <script>

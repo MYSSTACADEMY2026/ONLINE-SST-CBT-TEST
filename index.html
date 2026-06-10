@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>MY SST ACADEMY | ONLINE SST COMPUTER BASED TEST (CBT)</title>
     <style>
-        :root { --primary: #0b5ea8; }
+        :root { --primary: #0b5ea8; --danger: #dc3545; }
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
+        
         .cbt-header { 
             background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); 
             color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; 
@@ -13,38 +14,39 @@
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        
-        /* Navigation Controls & Pill Style */
-        .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
-        .tablet-group { 
-            display: flex; border: 2px solid #0b5ea8; border-radius: 50px; 
-            overflow: hidden; background: white;
-        }
-        .btn-nav { 
-            padding: 12px 30px; cursor: pointer; border: none; background: white; 
-            color: #0b5ea8; font-weight: bold; transition: all 0.3s;
-        }
-        .btn-nav:first-child { border-right: 1px solid #0b5ea8; }
-        .btn-nav:hover:not(:disabled) { background: #0b5ea8; color: white; }
-        .btn-nav:disabled { background: #e0e0e0 !important; color: #aaa; cursor: not-allowed; }
 
-        /* Submit Button */
+        /* Candidate Details Box */
+        .details-box { 
+            background: #ffffff; border: 2px solid var(--primary); 
+            padding: 20px; border-radius: 10px; margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Pill Navigation Group */
+        .tablet-group { display: flex; border: 2px solid var(--primary); border-radius: 50px; overflow: hidden; background: white; }
+        .btn-nav { padding: 12px 30px; cursor: pointer; border: none; background: white; color: var(--primary); font-weight: bold; transition: all 0.3s; }
+        .btn-nav:first-child { border-right: 1px solid var(--primary); }
+        .btn-nav:hover:not(:disabled) { background: var(--primary); color: white; }
+        .btn-nav:disabled { background: #e0e0e0; color: #aaa; cursor: not-allowed; }
+
+        /* Submit Button (Red Pill with Hover) */
         .btn-submit { 
-            padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; 
-            text-transform: uppercase; font-weight: bold; border-radius: 50px;
-            transition: all 0.3s;
+            padding: 12px 30px; cursor: pointer; border: 2px solid var(--danger); 
+            background: white; color: var(--danger); font-weight: bold; border-radius: 50px; 
+            transition: all 0.3s; margin-left: 20px;
         }
-        .btn-submit:hover { background: #b02a37; }
+        .btn-submit:hover { background: var(--danger); color: white; }
 
-        /* Question Progress Styles */
-        .legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 14px; }
-        .leg-item { display: flex; align-items: center; gap: 10px; }
-        .box { width: 18px; height: 18px; border: 2px solid #000; }
-        
-        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
+        /* Progress Boxes */
+        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; transition: 0.2s; }
+        .q-nav:hover { background: var(--danger); color: white; border-color: var(--danger); }
         .unanswered { border-color: #dc3545; color: #dc3545; }
         .answered { background: #28a745; color: white; border-color: #28a745; }
         .visited { background: #fd7e14; color: white; border-color: #fd7e14; }
+        
+        .legend { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; font-size: 14px; }
+        .leg-item { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+        .box { width: 18px; height: 18px; border: 2px solid #000; }
         
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
@@ -71,10 +73,8 @@
             <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;">
                 <option value="">Select Class</option>
-                <option value="6">Class 6</option>
-                <option value="7">Class 7</option>
-                <option value="8">Class 8</option>
-                <option value="9">Class 9</option>
+                <option value="6">Class 6</option><option value="7">Class 7</option>
+                <option value="8">Class 8</option><option value="9">Class 9</option>
                 <option value="10">Class 10</option>
             </select>
             <div id="chapterBox" style="margin:15px 0;"></div>
@@ -84,7 +84,6 @@
         <div id="examSection" class="hide">
             <div id="metaBox"></div>
             <div id="qDisplay"></div>
-            
             <div class="nav-controls">
                 <div class="tablet-group">
                     <button id="prevBtn" class="btn-nav" onclick="prevQ()">PREVIOUS</button>
@@ -97,21 +96,44 @@
     
     <aside class="sidebar">
         <h4>Question Progress</h4>
-        <div class="legend">
-            <div class="leg-item"><div class="box" style="border-color: #dc3545;"></div> Unanswered</div>
-            <div class="leg-item"><div class="box" style="background: #28a745; border-color: #28a745;"></div> Answered</div>
-            <div class="leg-item"><div class="box" style="background: #fd7e14; border-color: #fd7e14;"></div> Visited</div>
-        </div>
         <div id="qMap"></div>
     </aside>
 </div>
 
+<div id="resultSection" class="hide" style="padding: 40px; background: white;">
+    <h2>Test Results</h2>
+    <div id="finalMeta"></div> 
+    <div id="finalReport" style="margin-top:20px;"></div> 
+    <button class="btn" onclick="window.location.reload()">RESTART TEST</button>
+</div>
+
 <script>
-    function updateButtonStates(currentQ, totalQ = 20) {
-        document.getElementById('prevBtn').disabled = (currentQ <= 1);
-        document.getElementById('nextBtn').disabled = (currentQ >= totalQ);
+    // Placeholder constants - Update these with your real logic
+    const GOOGLE_SCRIPT_URL = "YOUR_SCRIPT_URL_HERE";
+    let currentIdx = 0, selectedQuestions = [], selectedChaps = [], setCode = "SET-" + Math.floor(Math.random() * 1000), visited = new Set();
+
+    function updateNav() {
+        let html = "";
+        selectedQuestions.forEach((q, i) => {
+            let isAnswered = document.querySelector(`input[name="q${i}"]:checked`);
+            let status = isAnswered ? 'answered' : (visited.has(i) ? 'visited' : 'unanswered');
+            html += `<div class="q-nav ${status}" onclick="visitQ(${i})">${i+1}</div>`;
+        });
+
+        html += `
+            <div class="legend">
+                <div class="leg-item"><div class="box" style="border:2px solid #dc3545"></div> Unanswered</div>
+                <div class="leg-item"><div class="box" style="background:#28a745"></div> Answered</div>
+                <div class="leg-item"><div class="box" style="background:#fd7e14"></div> Visited</div>
+            </div>`;
+        document.getElementById('qMap').innerHTML = html;
+        document.getElementById('prevBtn').disabled = (currentIdx <= 0);
+        document.getElementById('nextBtn').disabled = (currentIdx >= selectedQuestions.length - 1);
     }
+    
+    // (Ensure you include your loadChapters, startTest, renderQ, saveAns, visitQ, prevQ, nextQ, and submitExam functions here)
 </script>
+
 
 
   
@@ -4537,21 +4559,46 @@ const d = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', yea
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
-    function submitExam() {
-        userScore = 0;
-        let report = "";
-        selectedQuestions.forEach((q, i) => {
-            const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-            if(sel === q.answer) userScore++;
-            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span> | Correct: ${q.answer}</div>`;
-        });
-        renderMeta("finalMeta", userScore);
-        document.getElementById("finalReport").innerHTML = report;
-        const data = { name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, chapters: selectedChaps.join('\n'), score: userScore + "/20", set: setCode };
-        fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-        document.getElementById("examUI").classList.add("hide");
-        document.getElementById("resultSection").classList.remove("hide");
-    }
+function submitExam() {
+    userScore = 0;
+    let report = "";
+    
+    // Calculate Score and Generate Report
+    selectedQuestions.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+        if(sel === q.answer) userScore++;
+        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;">
+            <strong>Q${i+1}: ${q.question}</strong><br>
+            Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
+            Correct: ${q.answer}
+        </div>`;
+    });
+
+    // 1. Render meta-data in the new result section
+    renderMeta("finalMeta", userScore);
+    
+    // 2. Put the report into the new result section
+    document.getElementById("finalReport").innerHTML = report;
+
+    // 3. Send data (Keep your existing fetch)
+    const data = { 
+        name: document.getElementById("sName").value, 
+        roll: document.getElementById("sRoll").value, 
+        class: document.getElementById("sClass").value, 
+        chapters: selectedChaps.join('\n'), 
+        score: userScore + "/20", 
+        set: setCode 
+    };
+    fetch(GOOGLE_SCRIPT_URL, { 
+        method: "POST", mode: "no-cors", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(data) 
+    });
+
+    // 4. Hide the Exam UI and show the Result UI
+    document.getElementById("examUI").classList.add("hide");
+    document.getElementById("resultSection").classList.remove("hide");
+}
 
     function downloadHTML() {
         const blob = new Blob([document.getElementById('reportContent').outerHTML], {type: 'text/html'});

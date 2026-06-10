@@ -4448,19 +4448,27 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function toggleAll(source) { document.querySelectorAll('.chCheck').forEach(checkbox => checkbox.checked = source.checked); }
 
-    function renderMeta(targetId, score = null) {
-        const d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-        let chapterList = selectedChaps.map(ch => `<li>${ch}</li>`).join('');
-        document.getElementById(targetId).innerHTML = `
-            <div class="details-box">
-                <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
-                <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
-                <strong>Class:</strong> ${document.getElementById("sClass").value} | 
-                <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
-                ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
-            </div>
-            <div class="chapter-box-ui"><strong>SELECTED CHAPTERS:</strong><ul style="margin: 5px 0; padding-left: 20px;">${chapterList}</ul></div>`;
-    }
+  function renderMeta(targetId, score = null) {
+    const d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    
+    // Generates the list items
+    let chapterList = selectedChaps.map(ch => `<li style="margin-bottom: 4px;">${ch}</li>`).join('');
+    
+    document.getElementById(targetId).innerHTML = `
+        <div class="details-box">
+            <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
+            <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
+            <strong>Class:</strong> ${document.getElementById("sClass").value} | 
+            <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
+            ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
+        </div>
+        <div class="chapter-box-ui">
+            <strong>SELECTED CHAPTERS:</strong>
+            <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;">
+                ${chapterList}
+            </ul>
+        </div>`;
+}
 
     function startTest() {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);

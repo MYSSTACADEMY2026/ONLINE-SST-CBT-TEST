@@ -4562,13 +4562,13 @@ const data = {
     document.getElementById("resultSection").classList.remove("hide");
 }
 
-   function downloadHTML() {
-    // 1. Capture dynamic content from your page
+  function downloadHTML() {
+    // 1. Capture dynamic content
     const sName = document.getElementById("sName").value || "Student";
     const meta = document.getElementById('finalMeta').innerHTML;
     const report = document.getElementById('finalReport').innerHTML;
 
-    // 2. Define the printable layout
+    // 2. Build the professional report structure
     const fullReportHTML = `
         <!DOCTYPE html>
         <html>
@@ -4611,7 +4611,7 @@ const data = {
         </html>
     `;
 
-    // 3. Trigger Download
+    // 3. Trigger the download
     const blob = new Blob([fullReportHTML], {type: 'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

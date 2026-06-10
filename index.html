@@ -4545,7 +4545,7 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     class: document.getElementById("sClass").value, 
     score: userScore + "/20", 
     set: setCode, 
-    chapters: selectedChaps.join(', ') 
+    chapters: selectedChaps.join('\n') 
 };
     // 4. Send data to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 

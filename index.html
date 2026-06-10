@@ -114,7 +114,7 @@
   
 <script>
     // GOOGLE SCRIPT URL: Replace this with your URL
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzdTma6ngMZKBFiXMgd0ervELH40AKVg8gJd05VogIl4TcP9uAFULG0UZ15FAeP_Wfdog/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzsSjY0K-OgNAWUB8igSnq8ERR7kA8CgAGQXD_UINixGAJbqXgQygYbHmU7TJE1XFemzQ/exec";
     // 1. QUESTION DATA
     const questionBank = {
 
@@ -4511,19 +4511,48 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
-    function submitExam() {
-        userScore = 0;
-        let report = "";
-        selectedQuestions.forEach((q, i) => {
-            const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-            if(sel === q.answer) userScore++;
-            report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;"><strong>Q${i+1}: ${q.question}</strong><br>Your Answer: <span style="color:${sel==q.answer?'green':'red'}">${sel || 'Not Answered'}</span> | Correct: ${q.answer}</div>`;
-        });
-        renderMeta("finalMeta", userScore);
-        document.getElementById("finalReport").innerHTML = report;
-        document.getElementById("examUI").classList.add("hide");
-        document.getElementById("resultSection").classList.remove("hide");
-    }
+ function submitExam() {
+    userScore = 0;
+    let report = "";
+    
+    // 1. Calculate Score and Generate Report
+    selectedQuestions.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+        if(sel === q.answer) userScore++;
+        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;">
+            <strong>Q${i+1}: ${q.question}</strong><br>
+            Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
+            Correct: ${q.answer}
+        </div>`;
+    });
+
+    // 2. Render UI
+    renderMeta("finalMeta", userScore);
+    document.getElementById("finalReport").innerHTML = report;
+
+    // 3. Prepare data to send to Google Sheets
+    const data = { 
+        name: document.getElementById("sName").value, 
+        roll: document.getElementById("sRoll").value, 
+        class: document.getElementById("sClass").value, 
+        chapters: selectedChaps.join(', '), 
+        score: userScore + "/20", 
+        set: setCode 
+    };
+
+    // 4. Send data to Google Script
+    fetch(GOOGLE_SCRIPT_URL, { 
+        method: "POST", 
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(data) 
+    })
+    .catch(error => console.error("Error:", error));
+
+    // 5. Switch Screens
+    document.getElementById("examUI").classList.add("hide");
+    document.getElementById("resultSection").classList.remove("hide");
+}
 
     function downloadHTML() {
         const blob = new Blob([document.getElementById('reportContent').outerHTML], {type: 'text/html'});

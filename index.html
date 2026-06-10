@@ -8,41 +8,42 @@
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
         .cbt-header { 
             background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); 
-            color: white; 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 3px double #000; 
+            color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px double #000; 
         }
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
-        .meta-box { background: #f9f9f9; border: 2px solid #333; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .details-box { background: #fdfdfd; border: 2px solid #333; padding: 15px; margin-bottom: 10px; }
-        .chapter-box-ui { background: #eef6ff; border: 2px dashed #0b5ea8; padding: 15px; margin-bottom: 20px; font-weight: bold; }
-        
-        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
+        /* Navigation Controls & Pill Style */
+        .nav-container { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
+        .tablet-group { 
+            display: flex; background: #0b5ea8; border-radius: 50px; 
+            padding: 4px; box-shadow: 0 4px 0 #073d6d; overflow: hidden; 
+        }
+        .btn-nav { 
+            padding: 12px 30px; cursor: pointer; border: none; background: transparent; 
+            color: white; font-weight: bold; transition: 0.2s;
+        }
+        .btn-nav:hover:not(:disabled) { background: rgba(255,255,255,0.2); }
+        .btn-nav:disabled { background: #888 !important; color: #ccc; cursor: not-allowed; }
+
+        /* Submit Button */
+        .btn-submit { 
+            padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; 
+            text-transform: uppercase; font-weight: bold; border-radius: 50px;
+            box-shadow: 0 4px 0 #a71d2a; transition: 0.2s;
+        }
+        .btn-submit:hover { background: #c82333; }
+        .btn-submit:active { transform: translateY(2px); box-shadow: 0 2px 0 #a71d2a; }
+
+        /* Question Progress Styles */
+        .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; transition: 0.2s; }
+        .q-nav:hover { background: #eee; }
         .unanswered { border-color: #dc3545; color: #dc3545; }
         .answered { background: #28a745; color: white; border-color: #28a745; }
         .visited { background: #fd7e14; color: white; border-color: #fd7e14; }
 
-        .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; font-size: 12px; }
-        .leg-item { display: flex; align-items: center; gap: 5px; }
-        .box { width: 15px; height: 15px; border: 1px solid #000; }
-        
-        /* New Button Styles */
-        .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-        .tablet-group { display: flex; border: 2px solid #0b5ea8; border-radius: 4px; overflow: hidden; }
-        .btn-nav { padding: 10px 25px; cursor: pointer; border: none; background: #fff; color: #0b5ea8; font-weight: bold; transition: all 0.3s ease; }
-        .btn-nav:first-child { border-right: 1px solid #0b5ea8; }
-        .btn-nav:hover { background: #0b5ea8; color: #fff; }
-        .btn { padding: 12px 25px; cursor: pointer; border: none; background: #314755; color: white; text-transform: uppercase; transition: all 0.3s ease; font-weight: bold; }
-        .btn:hover { background: #0b5ea8; }
-        .btn-submit { background: #dc3545; }
-        .btn-submit:hover { background: #b02a37; }
-        
+        .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
     </style>
 </head>
@@ -76,17 +77,17 @@
             <div id="chapterBox" style="margin:15px 0;"></div>
             <button class="btn" onclick="startTest()">START TEST</button>
         </div>
+        
         <div id="examSection" class="hide">
             <div id="metaBox"></div>
-            
             <div id="qDisplay"></div>
             
-            <div class="nav-controls">
+            <div class="nav-container">
                 <div class="tablet-group">
-                    <button class="btn-nav" onclick="prevQ()">« PREVIOUS</button>
-                    <button class="btn-nav" onclick="nextQ()">NEXT »</button>
+                    <button id="prevBtn" class="btn-nav" onclick="prevQ()">« PREVIOUS</button>
+                    <button id="nextBtn" class="btn-nav" onclick="nextQ()">NEXT »</button>
                 </div>
-                <button class="btn btn-submit" onclick="submitExam()">SUBMIT TEST</button>
+                <button class="btn-submit" onclick="submitExam()">SUBMIT TEST</button>
             </div>
         </div>
     </main>
@@ -96,20 +97,14 @@
     </aside>
 </div>
 
-<div id="resultSection" class="hide" style="padding:40px; background:white;">
-    <div id="reportContent">
-        <div style="text-align:center;">
-            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s320/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="width:140px;">
-            <h2>MY SST ACADEMY</h2>
-            <p style="font-size: 20px; color: #555; margin-top: -10px;">Excellence in Social Science</p>
-        </div>
-        
-        <div id="finalMeta"></div>
-        
-        <div id="finalReport"></div>
-    </div>
-    <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
-</div>
+<script>
+    // Logic to handle inactive/active states
+    function updateNavState(currentQ, totalQ) {
+        document.getElementById('prevBtn').disabled = (currentQ === 1);
+        document.getElementById('nextBtn').disabled = (currentQ === totalQ);
+    }
+</script>
+
   
 <script>
     // GOOGLE SCRIPT URL: Replace this with your URL

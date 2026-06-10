@@ -7,31 +7,42 @@
         :root { --primary: #0b5ea8; }
         body { font-family: 'Times New Roman', serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #f4f4f4; }
         .cbt-header { 
-    background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); 
-    color: white; 
-    padding: 15px 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border-bottom: 3px double #000; 
-}
+            background: linear-gradient(180deg, #0b5ea8 0%, #314755 55%, #26a0da 100%); 
+            color: white; 
+            padding: 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 3px double #000; 
+        }
         .cbt-workspace { display: flex; flex: 1; overflow: hidden; }
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         .meta-box { background: #f9f9f9; border: 2px solid #333; padding: 15px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        /* Separate boxes for details and chapters */
-.details-box { background: #fdfdfd; border: 2px solid #333; padding: 15px; margin-bottom: 10px; }
-.chapter-box-ui { background: #eef6ff; border: 2px dashed #0b5ea8; padding: 15px; margin-bottom: 20px; font-weight: bold; }
-        /* Replace your old .q-nav and .answered lines with these: */
+        
+        .details-box { background: #fdfdfd; border: 2px solid #333; padding: 15px; margin-bottom: 10px; }
+        .chapter-box-ui { background: #eef6ff; border: 2px dashed #0b5ea8; padding: 15px; margin-bottom: 20px; font-weight: bold; }
+        
         .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
-        .unanswered { border-color: #dc3545; color: #dc3545; } /* Red */
-        .answered { background: #28a745; color: white; border-color: #28a745; } /* Green */
-        .visited { background: #fd7e14; color: white; border-color: #fd7e14; } /* Orange */
+        .unanswered { border-color: #dc3545; color: #dc3545; }
+        .answered { background: #28a745; color: white; border-color: #28a745; }
+        .visited { background: #fd7e14; color: white; border-color: #fd7e14; }
 
         .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; font-size: 12px; }
         .leg-item { display: flex; align-items: center; gap: 5px; }
         .box { width: 15px; height: 15px; border: 1px solid #000; }
-        .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
+        
+        /* New Button Styles */
+        .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .tablet-group { display: flex; border: 2px solid #0b5ea8; border-radius: 4px; overflow: hidden; }
+        .btn-nav { padding: 10px 25px; cursor: pointer; border: none; background: #fff; color: #0b5ea8; font-weight: bold; transition: all 0.3s ease; }
+        .btn-nav:first-child { border-right: 1px solid #0b5ea8; }
+        .btn-nav:hover { background: #0b5ea8; color: #fff; }
+        .btn { padding: 12px 25px; cursor: pointer; border: none; background: #314755; color: white; text-transform: uppercase; transition: all 0.3s ease; font-weight: bold; }
+        .btn:hover { background: #0b5ea8; }
+        .btn-submit { background: #dc3545; }
+        .btn-submit:hover { background: #b02a37; }
+        
         .hide { display: none; }
     </style>
 </head>
@@ -69,10 +80,13 @@
             <div id="metaBox"></div>
             
             <div id="qDisplay"></div>
-            <div style="margin-top:20px;">
-                <button class="btn" onclick="prevQ()">PREVIOUS</button>
-                <button class="btn" onclick="nextQ()">NEXT</button>
-                <button class="btn" style="background:#dc3545;" onclick="submitExam()">SUBMIT TEST</button>
+            
+            <div class="nav-controls">
+                <div class="tablet-group">
+                    <button class="btn-nav" onclick="prevQ()">« PREVIOUS</button>
+                    <button class="btn-nav" onclick="nextQ()">NEXT »</button>
+                </div>
+                <button class="btn btn-submit" onclick="submitExam()">SUBMIT TEST</button>
             </div>
         </div>
     </main>

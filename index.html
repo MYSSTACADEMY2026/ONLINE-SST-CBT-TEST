@@ -4539,13 +4539,14 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     document.getElementById("finalReport").innerHTML = report;
 
     // 3. Prepare data to send to Google Sheets
-   const data = { 
+const data = { 
     name: document.getElementById("sName").value, 
     roll: document.getElementById("sRoll").value, 
     class: document.getElementById("sClass").value, 
     score: userScore + "/20", 
     set: setCode, 
-    chapters: selectedChaps.map(c => "• " + c).join('\n')
+    // This adds a bullet and a newline for every chapter
+    chapters: selectedChaps.map(c => "• " + c).join('\n') 
 };
     // 4. Send data to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 

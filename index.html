@@ -4563,29 +4563,31 @@ const data = {
 }
 
   function downloadHTML() {
-    // 1. Capture dynamic content
     const sName = document.getElementById("sName").value || "Student";
-    const meta = document.getElementById('finalMeta').innerHTML;
+    const sRoll = document.getElementById("sRoll").value || "N/A";
+    const sClass = document.getElementById("sClass").value || "N/A";
+    const sSet = setCode || "N/A";
+    const sDate = new Date().toLocaleDateString('en-GB');
+    const sScore = userScore + "/20"; 
     const report = document.getElementById('finalReport').innerHTML;
 
-    // 2. Build the professional report structure
     const fullReportHTML = `
         <!DOCTYPE html>
         <html>
         <head>
             <style>
                 body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; }
-                
-                /* Header Layout */
-                .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 30px; }
+                .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px; }
                 .logo { height: 80px; margin-right: 20px; }
                 .title-group { display: flex; flex-direction: column; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
                 .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
                 
-                /* Student Details & Score Styling */
+                /* Styled Container */
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-                .score-bold { font-weight: bold; font-size: 20px; color: #dc3545; }
+                .box-title { text-align: center; font-size: 24px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
+                .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
+                .score-bold { font-weight: bold; color: #dc3545; }
             </style>
         </head>
         <body>
@@ -4598,8 +4600,18 @@ const data = {
             </div>
 
             <div class="details-box">
-                <div style="font-size: 18px;">
-                    ${meta.replace('Marks Secured:', '<span class="score-bold">Marks Secured:</span>')}
+                <div class="box-title">ONLINE CBT TEST RESULT</div>
+                <div class="info-row">
+                    <span><strong>Class:</strong> ${sClass}</span>
+                    <span><strong>Date:</strong> ${sDate}</span>
+                    <span><strong>Set Code:</strong> ${sSet}</span>
+                </div>
+                <div class="info-row">
+                    <span><strong>Candidate Name:</strong> ${sName}</span>
+                    <span><strong>Roll No:</strong> ${sRoll}</span>
+                </div>
+                <div class="info-row">
+                    <span class="score-bold" style="font-size: 22px;">Marks Secured: ${sScore}</span>
                 </div>
             </div>
 
@@ -4611,7 +4623,6 @@ const data = {
         </html>
     `;
 
-    // 3. Trigger the download
     const blob = new Blob([fullReportHTML], {type: 'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

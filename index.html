@@ -4562,14 +4562,19 @@ const data = {
     document.getElementById("resultSection").classList.remove("hide");
 }
 
-  function downloadHTML() {
+ function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
     const sRoll = document.getElementById("sRoll").value || "N/A";
     const sClass = document.getElementById("sClass").value || "N/A";
     const sSet = setCode || "N/A";
     const sDate = new Date().toLocaleDateString('en-GB');
     const sScore = userScore + "/20"; 
+    
+    // We get the report content and the chapter list separately
     const report = document.getElementById('finalReport').innerHTML;
+    // We assume your list is inside a container with id 'finalMeta' or similar
+    // Let's grab the chapter list specifically
+    const chapterListHTML = document.querySelector('.chapter-box-ui') ? document.querySelector('.chapter-box-ui').innerHTML : "";
 
     const fullReportHTML = `
         <!DOCTYPE html>
@@ -4583,11 +4588,13 @@ const data = {
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
                 .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
                 
-                /* Styled Container */
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
                 .box-title { text-align: center; font-size: 24px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
                 .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
                 .score-bold { font-weight: bold; color: #dc3545; }
+                
+                /* Ensure chapter list is visible */
+                .chapter-box-ui { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd; }
             </style>
         </head>
         <body>
@@ -4612,6 +4619,9 @@ const data = {
                 </div>
                 <div class="info-row">
                     <span class="score-bold" style="font-size: 22px;">Marks Secured: ${sScore}</span>
+                </div>
+                <div class="chapter-box-ui">
+                    ${chapterListHTML}
                 </div>
             </div>
 

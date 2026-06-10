@@ -35,6 +35,31 @@
         
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
+        /* Candidate Details Box */
+.details-box {
+    background: #fdfdfd;
+    border: 2px solid #0b5ea8;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Submit Button Style */
+.btn-submit { 
+    padding: 12px 30px; cursor: pointer; border: 2px solid #dc3545; 
+    background: white; color: #dc3545; /* Red text initially */
+    text-transform: uppercase; font-weight: bold; border-radius: 50px;
+    transition: all 0.3s;
+}
+.btn-submit:hover { 
+    background: #dc3545; color: white; /* Red background, white text */
+}
+
+/* Progress Box Hover Effect */
+.q-nav:hover { 
+    background: #dc3545; color: white; border-color: #dc3545; 
+}
     </style>
 </head>
 <body>
@@ -82,15 +107,10 @@
         </div>
     </main>
     
-    <aside class="sidebar">
-        <h4>Question Progress</h4>
-        <div class="legend">
-            <div class="leg-item"><div class="box" style="border-color: #dc3545;"></div> Unanswered</div>
-            <div class="leg-item"><div class="box" style="background: #28a745; border-color: #28a745;"></div> Answered</div>
-            <div class="leg-item"><div class="box" style="background: #fd7e14; border-color: #fd7e14;"></div> Visited</div>
-        </div>
-        <div id="qMap"></div>
-    </aside>
+   <aside class="sidebar">
+    <h4>Question Progress</h4>
+    <div id="qMap"></div>
+</aside>
 </div>
 
 <script>

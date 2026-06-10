@@ -4567,7 +4567,11 @@ const data = {
     const sRoll = document.getElementById("sRoll").value || "N/A";
     const sClass = document.getElementById("sClass").value || "N/A";
     const sSet = setCode || "N/A";
-    const sDate = new Date().toLocaleDateString('en-GB');
+   const sDate = new Date().toLocaleDateString('en-GB', { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+});
     const sScore = userScore + "/20"; 
     
     // We get the report content and the chapter list separately
@@ -4589,8 +4593,8 @@ const data = {
                 .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
                 
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-                .box-title { text-align: center; font-size: 24px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
-                .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 18px; }
+                .box-title { text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
+                .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 24px; }
                 .score-bold { font-weight: bold; color: #dc3545; }
                 
                 /* Ensure chapter list is visible */
@@ -4618,7 +4622,7 @@ const data = {
                     <span><strong>Roll No:</strong> ${sRoll}</span>
                 </div>
                 <div class="info-row">
-                    <span class="score-bold" style="font-size: 22px;">Marks Secured: ${sScore}</span>
+                    <span class="score-bold" style="font-size: 25px;">Marks Secured: ${sScore}</span>
                 </div>
                 <div class="chapter-box-ui">
                     ${chapterListHTML}

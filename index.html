@@ -14,7 +14,7 @@
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         
-        /* THE "TABLET" BUTTONS (PILL STYLE) */
+        /* Navigation Controls & Pill Style */
         .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
         .tablet-group { 
             display: flex; border: 2px solid #0b5ea8; border-radius: 50px; 
@@ -28,7 +28,7 @@
         .btn-nav:hover:not(:disabled) { background: #0b5ea8; color: white; }
         .btn-nav:disabled { background: #e0e0e0 !important; color: #aaa; cursor: not-allowed; }
 
-        /* SUBMIT BUTTON (RIGHT SIDE) */
+        /* Submit Button */
         .btn-submit { 
             padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; 
             text-transform: uppercase; font-weight: bold; border-radius: 50px;
@@ -36,11 +36,16 @@
         }
         .btn-submit:hover { background: #b02a37; }
 
-        /* GENERAL UI */
+        /* Question Progress Styles */
+        .legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 14px; }
+        .leg-item { display: flex; align-items: center; gap: 10px; }
+        .box { width: 18px; height: 18px; border: 2px solid #000; }
+        
         .q-nav { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin: 3px; cursor: pointer; border: 2px solid #ccc; font-weight: bold; }
         .unanswered { border-color: #dc3545; color: #dc3545; }
         .answered { background: #28a745; color: white; border-color: #28a745; }
         .visited { background: #fd7e14; color: white; border-color: #fd7e14; }
+        
         .btn { padding: 12px 25px; cursor: pointer; border: none; background: #000; color: white; margin-top: 10px; text-transform: uppercase; }
         .hide { display: none; }
     </style>
@@ -89,20 +94,25 @@
             </div>
         </div>
     </main>
+    
     <aside class="sidebar">
         <h4>Question Progress</h4>
+        <div class="legend">
+            <div class="leg-item"><div class="box" style="border-color: #dc3545;"></div> Unanswered</div>
+            <div class="leg-item"><div class="box" style="background: #28a745; border-color: #28a745;"></div> Answered</div>
+            <div class="leg-item"><div class="box" style="background: #fd7e14; border-color: #fd7e14;"></div> Visited</div>
+        </div>
         <div id="qMap"></div>
     </aside>
 </div>
 
 <script>
-    // Logic for button states (Call this whenever you switch questions)
-    // Pass the current index and 20 as total questions
     function updateButtonStates(currentQ, totalQ = 20) {
         document.getElementById('prevBtn').disabled = (currentQ <= 1);
         document.getElementById('nextBtn').disabled = (currentQ >= totalQ);
     }
 </script>
+
 
 
   

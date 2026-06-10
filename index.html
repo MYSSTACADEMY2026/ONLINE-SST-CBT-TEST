@@ -14,29 +14,16 @@
         .canvas { flex: 1; padding: 40px; overflow-y: auto; background: #fff; }
         .sidebar { width: 300px; background: #fff; border-left: 2px solid #ccc; padding: 20px; overflow-y: auto; }
         
-        /* Navigation Controls & Pill Style */
         .nav-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; }
-        .tablet-group { 
-            display: flex; border: 2px solid #0b5ea8; border-radius: 50px; 
-            overflow: hidden; background: white;
-        }
-        .btn-nav { 
-            padding: 12px 30px; cursor: pointer; border: none; background: white; 
-            color: #0b5ea8; font-weight: bold; transition: all 0.3s;
-        }
+        .tablet-group { display: flex; border: 2px solid #0b5ea8; border-radius: 50px; overflow: hidden; background: white; }
+        .btn-nav { padding: 12px 30px; cursor: pointer; border: none; background: white; color: #0b5ea8; font-weight: bold; transition: all 0.3s; }
         .btn-nav:first-child { border-right: 1px solid #0b5ea8; }
         .btn-nav:hover:not(:disabled) { background: #0b5ea8; color: white; }
         .btn-nav:disabled { background: #e0e0e0 !important; color: #aaa; cursor: not-allowed; }
 
-        /* Submit Button */
-        .btn-submit { 
-            padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; 
-            text-transform: uppercase; font-weight: bold; border-radius: 50px;
-            transition: all 0.3s;
-        }
+        .btn-submit { padding: 12px 30px; cursor: pointer; border: none; background: #dc3545; color: white; text-transform: uppercase; font-weight: bold; border-radius: 50px; transition: all 0.3s; }
         .btn-submit:hover { background: #b02a37; }
 
-        /* Question Progress Styles */
         .legend { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 14px; }
         .leg-item { display: flex; align-items: center; gap: 10px; }
         .box { width: 18px; height: 18px; border: 2px solid #000; }
@@ -107,7 +94,19 @@
 </div>
 
 <script>
-    function updateButtonStates(currentQ, totalQ = 20) {
+    // USE THIS FUNCTION TO RENDER. THE .innerHTML = '' LINE PREVENTS DUPLICATION.
+    function renderQMap(totalQ, currentQ) {
+        const qMap = document.getElementById('qMap');
+        qMap.innerHTML = ''; // <--- THIS CLEARS PREVIOUS CONTENT BEFORE ADDING NEW
+        
+        for(let i = 1; i <= totalQ; i++) {
+            let div = document.createElement('div');
+            div.className = 'q-nav';
+            div.innerText = i;
+            qMap.appendChild(div);
+        }
+        
+        // Handle nav buttons
         document.getElementById('prevBtn').disabled = (currentQ <= 1);
         document.getElementById('nextBtn').disabled = (currentQ >= totalQ);
     }

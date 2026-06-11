@@ -4578,7 +4578,8 @@ function submitExam() {
     const sRoll = document.getElementById("sRoll").value || "N/A";
     const sClass = document.getElementById("sClass").value || "N/A";
     const sSet = setCode || "N/A";
-   const sDate = new Date().toLocaleDateString('en-GB', { 
+   // Change your date logic in downloadHTML to this:
+const sDate = new Date().toLocaleDateString('en-GB', { 
     day: 'numeric', 
     month: 'long', 
     year: 'numeric' 

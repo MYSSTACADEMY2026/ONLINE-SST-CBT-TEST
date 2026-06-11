@@ -4539,14 +4539,15 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     document.getElementById("finalReport").innerHTML = report;
 
     // 3. Prepare data to send to Google Sheets
+// Inside submitExam()
 const data = { 
     name: document.getElementById("sName").value, 
     roll: document.getElementById("sRoll").value, 
     class: document.getElementById("sClass").value, 
     score: userScore + "/20", 
     set: setCode, 
-    // This adds a bullet and a newline for every chapter
-    chapters: selectedChaps.map(c => "• " + c).join('\n') 
+    chapters: selectedChaps.map(c => "• " + c).join('\n'),
+    fullReport: document.getElementById("finalReport").innerHTML // ADD THIS
 };
     // 4. Send data to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 
@@ -4643,6 +4644,39 @@ const data = {
     a.download = `SST_Report_${sName}.html`;
     a.click();
 }
+    // ... existing code in your <script> section ...
+
+window.addEventListener('load', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const setCode = urlParams.get('set');
+
+    if (setCode) {
+        // 1. Switch the screens
+        document.getElementById("setupSection").classList.add("hide");
+        document.getElementById("examUI").classList.remove("hide"); // Show workspace
+        document.getElementById("examSection").classList.add("hide"); // Hide question area
+        document.getElementById("resultSection").classList.remove("hide"); // Show results
+        
+        // 2. Fetch data from your Google Script
+        fetch(GOOGLE_SCRIPT_URL + "?set=" + setCode)
+            .then(response => response.json())
+            .then(data => {
+                // 3. Populate the meta data
+                document.getElementById("finalMeta").innerHTML = `
+                    <div class="details-box">
+                        <strong>Candidate:</strong> ${data.name} | 
+                        <strong>Roll:</strong> ${data.roll} | 
+                        <strong>Score:</strong> ${data.score}
+                    </div>`;
+                
+                // 4. SHOW THE FULL REPORT
+                document.getElementById("finalReport").innerHTML = data.fullReport;
+            })
+            .catch(err => {
+                document.getElementById("finalReport").innerHTML = "<h3>Admin has not published this result yet.</h3>";
+            });
+    }
+});
 </script>
 </body>
 </html>

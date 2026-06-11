@@ -4519,15 +4519,15 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
- function submitExam() {
+function submitExam() {
     userScore = 0;
     let report = "";
     
-    // 1. Calculate Score and Generate Report
+    // 1. Calculate Score and Generate Question List
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
-        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;">
+        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding: 5px;">
             <strong>Q${i+1}: ${q.question}</strong><br>
             Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
             Correct: ${q.answer}
@@ -4538,18 +4538,29 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     renderMeta("finalMeta", userScore);
     document.getElementById("finalReport").innerHTML = report;
 
-    // 3. Prepare data to send to Google Sheets
-// Inside submitExam()
-const data = { 
-    name: document.getElementById("sName").value, 
-    roll: document.getElementById("sRoll").value, 
-    class: document.getElementById("sClass").value, 
-    score: userScore + "/20", 
-    set: setCode, 
-    chapters: selectedChaps.map(c => "• " + c).join('\n'),
-    fullReport: document.getElementById("finalReport").innerHTML // ADD THIS
-};
-    // 4. Send data to Google Script
+    // 3. Capture the FULL visual report (Meta + Questions)
+    // This grabs the entire result section so the Admin sees the exact same layout
+    const fullHtmlReport = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            ${document.getElementById("finalMeta").innerHTML}
+            <div style="margin-top: 20px;">
+                <h3>Answer Key & Performance</h3>
+                ${document.getElementById("finalReport").innerHTML}
+            </div>
+        </div>`;
+
+    // 4. Prepare data to send to Google Sheets
+    const data = { 
+        name: document.getElementById("sName").value, 
+        roll: document.getElementById("sRoll").value, 
+        class: document.getElementById("sClass").value, 
+        score: userScore + "/20", 
+        set: setCode, 
+        chapters: selectedChaps.map(c => "• " + c).join('\n'),
+        fullReport: fullHtmlReport // Sending the fully bundled HTML
+    };
+
+    // 5. Send data to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 
         method: "POST", 
         mode: "no-cors", 
@@ -4558,11 +4569,10 @@ const data = {
     })
     .catch(error => console.error("Error:", error));
 
-    // 5. Switch Screens
+    // 6. Switch Screens
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
-
  function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
     const sRoll = document.getElementById("sRoll").value || "N/A";

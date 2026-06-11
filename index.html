@@ -4523,7 +4523,6 @@ function submitExam() {
     userScore = 0;
     let report = "";
     
-    // 1. Calculate Score and Generate Question List
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
@@ -4534,13 +4533,9 @@ function submitExam() {
         </div>`;
     });
 
-    // 2. Render UI
-    renderMeta("finalMeta", userScore);
-    document.getElementById("finalReport").innerHTML = report;
-
-    // 3. Create the EXACT visual report template
+    // Create the exact template used in downloadHTML
     const fullHtmlReport = `
-        <div style="font-family: 'Times New Roman', serif; padding: 40px; color: #000;">
+        <div style="font-family: 'Times New Roman', serif; padding: 20px; color: #000;">
             <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px;">
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height: 80px; margin-right: 20px;">
                 <div style="display: flex; flex-direction: column;">
@@ -4548,14 +4543,30 @@ function submitExam() {
                     <p style="font-size: 18px; font-style: italic; color: #333; margin: 0;">Excellence in Social Science</p>
                 </div>
             </div>
-            ${document.getElementById("finalMeta").innerHTML}
-            <div style="margin-top: 20px;">
-                <h3>Answer Key & Performance</h3>
-                ${report}
+            <div class="details-box" style="background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                <div style="text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline;">ONLINE CBT TEST RESULT</div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 20px;">
+                    <span><strong>Class:</strong> ${document.getElementById("sClass").value}</span>
+                    <span><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</span>
+                    <span><strong>Set:</strong> ${setCode}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 20px;">
+                    <span><strong>Candidate:</strong> ${document.getElementById("sName").value}</span>
+                    <span><strong>Roll:</strong> ${document.getElementById("sRoll").value}</span>
+                </div>
+                <div style="font-weight: bold; color: #dc3545; font-size: 25px;">Marks Secured: ${userScore}/20</div>
+                <div style="margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd;">
+                    <strong>SELECTED CHAPTERS:</strong>
+                    <ul style="margin: 10px 0 0 0; padding-left: 25px;">${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
+                </div>
             </div>
+            <h3>Answer Key & Performance</h3>
+            ${report}
         </div>`;
 
-    // 4. Prepare data
+    document.getElementById("finalReport").innerHTML = fullHtmlReport;
+    document.getElementById("finalMeta").innerHTML = ""; // Clear this so no duplicate shows
+
     const data = { 
         name: document.getElementById("sName").value, 
         roll: document.getElementById("sRoll").value, 
@@ -4563,18 +4574,10 @@ function submitExam() {
         score: userScore + "/20", 
         set: setCode, 
         chapters: selectedChaps.map(c => "• " + c).join('\n'),
-        fullReport: fullHtmlReport // Now includes full styling and logo
+        fullReport: fullHtmlReport 
     };
 
-    // 5. Send to Google Script
-    fetch(GOOGLE_SCRIPT_URL, { 
-        method: "POST", 
-        mode: "no-cors", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify(data) 
-    });
-
-    // 6. Switch Screens
+    fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
@@ -4669,26 +4672,22 @@ window.addEventListener('load', function() {
     if (setCode) {
         // 1. Switch the screens
         document.getElementById("setupSection").classList.add("hide");
-        document.getElementById("examUI").classList.remove("hide"); // Show workspace
-        document.getElementById("examSection").classList.add("hide"); // Hide question area
-        document.getElementById("resultSection").classList.remove("hide"); // Show results
+        document.getElementById("examUI").classList.remove("hide"); 
+        document.getElementById("examSection").classList.add("hide"); 
+        document.getElementById("resultSection").classList.remove("hide"); 
         
-        // 2. Fetch data from your Google Script
+        // 2. Fetch data
         fetch(GOOGLE_SCRIPT_URL + "?set=" + setCode)
             .then(response => response.json())
             .then(data => {
-                // 3. Populate the meta data
-                document.getElementById("finalMeta").innerHTML = `
-                    <div class="details-box">
-                        <strong>Candidate:</strong> ${data.name} | 
-                        <strong>Roll:</strong> ${data.roll} | 
-                        <strong>Score:</strong> ${data.score}
-                    </div>`;
+                // 3. Clear the redundant Meta box to prevent duplication
+                document.getElementById("finalMeta").innerHTML = "";
                 
-                // 4. SHOW THE FULL REPORT
+                // 4. Inject the FULL pre-built report that contains all styling and data
                 document.getElementById("finalReport").innerHTML = data.fullReport;
             })
             .catch(err => {
+                document.getElementById("finalMeta").innerHTML = "";
                 document.getElementById("finalReport").innerHTML = "<h3>Admin has not published this result yet.</h3>";
             });
     }

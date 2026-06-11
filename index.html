@@ -4538,18 +4538,24 @@ function submitExam() {
     renderMeta("finalMeta", userScore);
     document.getElementById("finalReport").innerHTML = report;
 
-    // 3. Capture the FULL visual report (Meta + Questions)
-    // This grabs the entire result section so the Admin sees the exact same layout
+    // 3. Create the EXACT visual report template
     const fullHtmlReport = `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <div style="font-family: 'Times New Roman', serif; padding: 40px; color: #000;">
+            <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px;">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height: 80px; margin-right: 20px;">
+                <div style="display: flex; flex-direction: column;">
+                    <h1 style="font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0;">MY SST ACADEMY</h1>
+                    <p style="font-size: 18px; font-style: italic; color: #333; margin: 0;">Excellence in Social Science</p>
+                </div>
+            </div>
             ${document.getElementById("finalMeta").innerHTML}
             <div style="margin-top: 20px;">
                 <h3>Answer Key & Performance</h3>
-                ${document.getElementById("finalReport").innerHTML}
+                ${report}
             </div>
         </div>`;
 
-    // 4. Prepare data to send to Google Sheets
+    // 4. Prepare data
     const data = { 
         name: document.getElementById("sName").value, 
         roll: document.getElementById("sRoll").value, 
@@ -4557,17 +4563,16 @@ function submitExam() {
         score: userScore + "/20", 
         set: setCode, 
         chapters: selectedChaps.map(c => "• " + c).join('\n'),
-        fullReport: fullHtmlReport // Sending the fully bundled HTML
+        fullReport: fullHtmlReport // Now includes full styling and logo
     };
 
-    // 5. Send data to Google Script
+    // 5. Send to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 
         method: "POST", 
         mode: "no-cors", 
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify(data) 
-    })
-    .catch(error => console.error("Error:", error));
+    });
 
     // 6. Switch Screens
     document.getElementById("examUI").classList.add("hide");

@@ -103,7 +103,7 @@
 <div id="resultSection" class="hide" style="padding: 40px; background: white;">
     <div id="reportContent">
         <h2>Test Results</h2>
-        <div id="finalMeta"></div> 
+        <div id="finalMeta" style="display:none;"></div> 
         <div id="finalReport" style="margin-top:20px;"></div> 
     </div>
     <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
@@ -4523,6 +4523,7 @@ function submitExam() {
     userScore = 0;
     let report = "";
     
+    // Calculate Score
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
@@ -4533,40 +4534,37 @@ function submitExam() {
         </div>`;
     });
 
-    // Create the exact template used in downloadHTML
+    // Generate the master template
     const fullHtmlReport = `
         <div style="font-family: 'Times New Roman', serif; padding: 20px; color: #000;">
             <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px;">
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height: 80px; margin-right: 20px;">
-                <div style="display: flex; flex-direction: column;">
+                <div>
                     <h1 style="font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0;">MY SST ACADEMY</h1>
                     <p style="font-size: 18px; font-style: italic; color: #333; margin: 0;">Excellence in Social Science</p>
                 </div>
             </div>
-            <div class="details-box" style="background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+            <div style="background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
                 <div style="text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline;">ONLINE CBT TEST RESULT</div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 20px;">
-                    <span><strong>Class:</strong> ${document.getElementById("sClass").value}</span>
-                    <span><strong>Date:</strong> ${new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'long', year: 'numeric'})}</span>
-                    <span><strong>Set:</strong> ${setCode}</span>
+                <div style="font-size: 20px;">
+                    <p><strong>Candidate:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}</p>
+                    <p><strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
+                    <p><strong>Set:</strong> ${setCode} | <strong style="color:#dc3545;">Score:</strong> ${userScore}/20</p>
                 </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 20px;">
-                    <span><strong>Candidate:</strong> ${document.getElementById("sName").value}</span>
-                    <span><strong>Roll:</strong> ${document.getElementById("sRoll").value}</span>
-                </div>
-                <div style="font-weight: bold; color: #dc3545; font-size: 25px;">Marks Secured: ${userScore}/20</div>
-                <div style="margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd;">
+                <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
                     <strong>SELECTED CHAPTERS:</strong>
-                    <ul style="margin: 10px 0 0 0; padding-left: 25px;">${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
+                    <ul>${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
                 </div>
             </div>
             <h3>Answer Key & Performance</h3>
             ${report}
         </div>`;
 
+    // Write to ONLY one container
     document.getElementById("finalReport").innerHTML = fullHtmlReport;
-    document.getElementById("finalMeta").innerHTML = ""; // Clear this so no duplicate shows
+    document.getElementById("finalMeta").innerHTML = ""; // Clear other containers
 
+    // Send data
     const data = { 
         name: document.getElementById("sName").value, 
         roll: document.getElementById("sRoll").value, 
@@ -4578,9 +4576,13 @@ function submitExam() {
     };
 
     fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
+
+
+    
  function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
     const sRoll = document.getElementById("sRoll").value || "N/A";

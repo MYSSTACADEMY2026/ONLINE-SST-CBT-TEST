@@ -101,11 +101,12 @@
 </div>
 
 <div id="resultSection" class="hide" style="padding: 40px; background: white;">
-    <div id="finalMeta" style="display:none;"></div> 
     <div id="finalReport"></div> 
     
-    <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
-    <button class="btn" onclick="window.location.reload()">RESTART TEST</button>
+    <div style="margin-top: 20px;">
+        <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
+        <button class="btn" onclick="window.location.reload()">RESTART TEST</button>
+    </div>
 </div>
 
 
@@ -4521,7 +4522,6 @@ function submitExam() {
     userScore = 0;
     let report = "";
     
-    // 1. Calculate Score and generate the Question list
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
@@ -4532,16 +4532,9 @@ function submitExam() {
         </div>`;
     });
 
-    // 2. Build the ONE AND ONLY block
-    const fullHtmlReport = `
+    // ONLY the content, no header here!
+    const reportContent = `
         <div style="font-family: 'Times New Roman', serif; padding: 20px; color: #000;">
-            <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px;">
-                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" style="height: 80px; margin-right: 20px;">
-                <div>
-                    <h1 style="font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0;">MY SST ACADEMY</h1>
-                    <p style="font-size: 18px; font-style: italic; color: #333; margin: 0;">Excellence in Social Science</p>
-                </div>
-            </div>
             <div style="background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
                 <div style="text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline;">ONLINE CBT TEST RESULT</div>
                 <div style="font-size: 20px;">
@@ -4558,26 +4551,12 @@ function submitExam() {
             ${report}
         </div>`;
 
-    // 3. Inject into the page and clear old containers
-    document.getElementById("finalReport").innerHTML = fullHtmlReport;
-    document.getElementById("finalMeta").innerHTML = ""; // This kills the duplicate box
+    document.getElementById("finalReport").innerHTML = reportContent;
+    document.getElementById("finalMeta").innerHTML = "";
     
-    // 4. Send to Database
-    const data = { 
-        name: document.getElementById("sName").value, 
-        roll: document.getElementById("sRoll").value, 
-        class: document.getElementById("sClass").value, 
-        score: userScore + "/20", 
-        set: setCode, 
-        fullReport: fullHtmlReport 
-    };
-    fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
-
-    document.getElementById("examUI").classList.add("hide");
-    document.getElementById("resultSection").classList.remove("hide");
+    const data = { /* ... your existing data object ... */, fullReport: reportContent };
+    // ... fetch call ...
 }
-
-
     
  function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";

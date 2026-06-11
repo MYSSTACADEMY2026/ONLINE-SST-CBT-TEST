@@ -4552,23 +4552,16 @@ function submitExam() {
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
- function downloadHTML() {
+function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
     const sRoll = document.getElementById("sRoll").value || "N/A";
     const sClass = document.getElementById("sClass").value || "N/A";
     const sSet = setCode || "N/A";
-   // Change your date logic in downloadHTML to this:
-const sDate = new Date().toLocaleDateString('en-GB', { 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
-});
-    const sScore = userScore + "/20"; 
+    const sDate = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const sScore = userScore + "/20";
     
-    // We get the report content and the chapter list separately
-    const report = document.getElementById('finalReport').innerHTML;
-    // We assume your list is inside a container with id 'finalMeta' or similar
-    // Let's grab the chapter list specifically
+    // Grab the list and the chapter box
+    const reportList = document.getElementById('finalReport').innerHTML;
     const chapterListHTML = document.querySelector('.chapter-box-ui') ? document.querySelector('.chapter-box-ui').innerHTML : "";
 
     const fullReportHTML = `
@@ -4579,54 +4572,29 @@ const sDate = new Date().toLocaleDateString('en-GB', {
                 body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; }
                 .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px; }
                 .logo { height: 80px; margin-right: 20px; }
-                .title-group { display: flex; flex-direction: column; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
-                .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
-                
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-                .box-title { text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
-                .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 24px; }
-                .score-bold { font-weight: bold; color: #dc3545; }
-                
-                /* Ensure chapter list is visible */
                 .chapter-box-ui { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd; }
             </style>
         </head>
         <body>
             <div class="report-header">
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" class="logo">
-                <div class="title-group">
+                <div>
                     <h1 class="academy-name">MY SST ACADEMY</h1>
-                    <p class="tagline">Excellence in Social Science</p>
+                    <p>Excellence in Social Science</p>
                 </div>
             </div>
-
             <div class="details-box">
-                <div class="box-title">ONLINE CBT TEST RESULT</div>
-                <div class="info-row">
-                    <span><strong>Class:</strong> ${sClass}</span>
-                    <span><strong>Date:</strong> ${sDate}</span>
-                    <span><strong>Set Code:</strong> ${sSet}</span>
-                </div>
-                <div class="info-row">
-                    <span><strong>Candidate Name:</strong> ${sName}</span>
-                    <span><strong>Roll No:</strong> ${sRoll}</span>
-                </div>
-                <div class="info-row">
-                    <span class="score-bold" style="font-size: 25px;">Marks Secured: ${sScore}</span>
-                </div>
-                <div class="chapter-box-ui">
-                    ${chapterListHTML}
-                </div>
+                <h2>ONLINE CBT TEST RESULT</h2>
+                <p><strong>Candidate:</strong> ${sName} | <strong>Roll:</strong> ${sRoll} | <strong>Class:</strong> ${sClass}</p>
+                <p><strong>Date:</strong> ${sDate} | <strong>Set:</strong> ${sSet} | <strong>Score:</strong> ${sScore}</p>
+                <div class="chapter-box-ui"><strong>SELECTED CHAPTERS:</strong> ${chapterListHTML}</div>
             </div>
-
-            <div>
-                <h3>Answer Key & Performance</h3>
-                ${report}
-            </div>
+            <h3>Answer Key & Performance</h3>
+            ${reportList}
         </body>
-        </html>
-    `;
+        </html>`;
 
     const blob = new Blob([fullReportHTML], {type: 'text/html'});
     const a = document.createElement('a');
@@ -4634,35 +4602,6 @@ const sDate = new Date().toLocaleDateString('en-GB', {
     a.download = `SST_Report_${sName}.html`;
     a.click();
 }
-    // ... existing code in your <script> section ...
-
-window.addEventListener('load', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const setCode = urlParams.get('set');
-
-    if (setCode) {
-        // 1. Switch the screens
-        document.getElementById("setupSection").classList.add("hide");
-        document.getElementById("examUI").classList.remove("hide"); 
-        document.getElementById("examSection").classList.add("hide"); 
-        document.getElementById("resultSection").classList.remove("hide"); 
-        
-        // 2. Fetch data
-        fetch(GOOGLE_SCRIPT_URL + "?set=" + setCode)
-            .then(response => response.json())
-            .then(data => {
-                // 3. Clear the redundant Meta box to prevent duplication
-                document.getElementById("finalMeta").innerHTML = "";
-                
-                // 4. Inject the FULL pre-built report that contains all styling and data
-                document.getElementById("finalReport").innerHTML = data.fullReport;
-            })
-            .catch(err => {
-                document.getElementById("finalMeta").innerHTML = "";
-                document.getElementById("finalReport").innerHTML = "<h3>Admin has not published this result yet.</h3>";
-            });
-    }
-});
 </script>
 </body>
 </html>

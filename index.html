@@ -101,11 +101,9 @@
 </div>
 
 <div id="resultSection" class="hide" style="padding: 40px; background: white;">
-    <div id="reportContent">
-        <h2>Test Results</h2>
-        <div id="finalMeta" style="display:none;"></div> 
-        <div id="finalReport" style="margin-top:20px;"></div> 
-    </div>
+    <div id="finalMeta" style="display:none;"></div> 
+    <div id="finalReport"></div> 
+    
     <button class="btn" onclick="downloadHTML()">DOWNLOAD REPORT</button>
     <button class="btn" onclick="window.location.reload()">RESTART TEST</button>
 </div>
@@ -4523,7 +4521,7 @@ function submitExam() {
     userScore = 0;
     let report = "";
     
-    // Calculate Score
+    // 1. Calculate Score and generate the Question list
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
@@ -4534,7 +4532,7 @@ function submitExam() {
         </div>`;
     });
 
-    // Generate the master template
+    // 2. Build the ONE AND ONLY block
     const fullHtmlReport = `
         <div style="font-family: 'Times New Roman', serif; padding: 20px; color: #000;">
             <div style="display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px;">
@@ -4553,28 +4551,26 @@ function submitExam() {
                 </div>
                 <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
                     <strong>SELECTED CHAPTERS:</strong>
-                    <ul>${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
+                    <ul style="margin: 5px 0 0 0; padding-left: 20px;">${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
                 </div>
             </div>
             <h3>Answer Key & Performance</h3>
             ${report}
         </div>`;
 
-    // Write to ONLY one container
+    // 3. Inject into the page and clear old containers
     document.getElementById("finalReport").innerHTML = fullHtmlReport;
-    document.getElementById("finalMeta").innerHTML = ""; // Clear other containers
-
-    // Send data
+    document.getElementById("finalMeta").innerHTML = ""; // This kills the duplicate box
+    
+    // 4. Send to Database
     const data = { 
         name: document.getElementById("sName").value, 
         roll: document.getElementById("sRoll").value, 
         class: document.getElementById("sClass").value, 
         score: userScore + "/20", 
         set: setCode, 
-        chapters: selectedChaps.map(c => "• " + c).join('\n'),
         fullReport: fullHtmlReport 
     };
-
     fetch(GOOGLE_SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
 
     document.getElementById("examUI").classList.add("hide");

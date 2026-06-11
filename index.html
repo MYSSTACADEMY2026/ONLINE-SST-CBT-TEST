@@ -4520,42 +4520,37 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
 function submitExam() {
     userScore = 0;
-    let report = "";
+    let reportList = "";
     
+    // Generate ONLY the question list
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
-        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding: 5px;">
+        reportList += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding: 5px;">
             <strong>Q${i+1}: ${q.question}</strong><br>
             Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
             Correct: ${q.answer}
         </div>`;
     });
 
-    // ONLY the content, no header here!
-    const reportContent = `
-        <div style="font-family: 'Times New Roman', serif; padding: 20px; color: #000;">
-            <div style="background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-                <div style="text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline;">ONLINE CBT TEST RESULT</div>
-                <div style="font-size: 20px;">
-                    <p><strong>Candidate:</strong> ${document.getElementById("sName").value} | <strong>Roll:</strong> ${document.getElementById("sRoll").value}</p>
-                    <p><strong>Class:</strong> ${document.getElementById("sClass").value} | <strong>Date:</strong> ${new Date().toLocaleDateString('en-GB')}</p>
-                    <p><strong>Set:</strong> ${setCode} | <strong style="color:#dc3545;">Score:</strong> ${userScore}/20</p>
-                </div>
-                <div style="margin-top: 15px; border-top: 1px solid #ccc; padding-top: 10px;">
-                    <strong>SELECTED CHAPTERS:</strong>
-                    <ul style="margin: 5px 0 0 0; padding-left: 20px;">${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}</ul>
-                </div>
-            </div>
-            <h3>Answer Key & Performance</h3>
-            ${report}
-        </div>`;
+    // Inject ONLY the questions into the page
+    document.getElementById("finalReport").innerHTML = reportList;
+    document.getElementById("finalMeta").innerHTML = ""; // Ensure the old meta is cleared
 
-    document.getElementById("finalReport").innerHTML = reportContent;
-    document.getElementById("finalMeta").innerHTML = "";
+    // Data for database (Store the list only)
+    const data = { 
+        name: document.getElementById("sName").value, 
+        roll: document.getElementById("sRoll").value, 
+        class: document.getElementById("sClass").value, 
+        score: userScore + "/20", 
+        set: setCode, 
+        reportList: reportList 
+    };
     
-    const data = { /* ... your existing data object ... */, fullReport: reportContent };
     // ... fetch call ...
+    
+    document.getElementById("examUI").classList.add("hide");
+    document.getElementById("resultSection").classList.remove("hide");
 }
     
  function downloadHTML() {

@@ -5282,9 +5282,10 @@ function submitExam() {
     // 2. Render UI
     renderMeta("finalMeta");
     
-    // Updated Modern Pill Details Box
-    const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 5px;";
+    // Pill Style for Details and Chapter Box
+    const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 12px 25px; border-radius: 30px; font-size: 18px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 5px;";
     
+    // Re-rendering meta to include details AND the chapter list
     document.getElementById("finalMeta").innerHTML = `
         <div style="margin-bottom: 20px; text-align: center;">
             <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
@@ -5292,6 +5293,12 @@ function submitExam() {
             <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
             <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
             <div style="${pillStyle}">Set: ${setCode}</div>
+        </div>
+        <div class="chapter-box-ui" style="margin-bottom: 20px;">
+            <strong>SELECTED CHAPTERS:</strong>
+            <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;">
+                ${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}
+            </ul>
         </div>
         <div style="text-align: center; margin: 20px 0; padding: 20px; border: 3px solid #dc3545; border-radius: 10px;">
             <div style="font-size: 20px; color: #dc3545;">MARKS SECURED</div>
@@ -5324,7 +5331,8 @@ function downloadHTML() {
                 .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px; }
                 .logo { height: 80px; margin-right: 20px; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
-                .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; }
+                .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+                .chapter-box-ui { margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #ddd; }
             </style>
         </head>
         <body>

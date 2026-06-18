@@ -5286,14 +5286,15 @@ function submitExam() {
     const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 12px 25px; border-radius: 30px; font-size: 18px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 5px;";
     
     // Re-rendering meta to include details AND the chapter list
-    document.getElementById("finalMeta").innerHTML = `
-        <div style="margin-bottom: 20px; text-align: center;">
-            <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
-            <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
-            <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
-            <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
-            <div style="${pillStyle}">Set: ${setCode}</div>
-        </div>
+ document.getElementById("finalMeta").innerHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h2 style="color: #0b5ea8; margin-bottom: 20px; text-decoration: underline;">ONLINE CBT TEST RESULT</h2>
+        <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
+        <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
+        <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
+        <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
+        <div style="${pillStyle}">Set: ${setCode}</div>
+    </div>
         <div class="chapter-box-ui" style="margin-bottom: 20px;">
             <strong>SELECTED CHAPTERS:</strong>
             <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;">

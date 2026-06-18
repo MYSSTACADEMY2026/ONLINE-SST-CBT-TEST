@@ -5258,7 +5258,7 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
 
- function submitExam() {
+function submitExam() {
     userScore = 0;
     let report = "";
     
@@ -5266,58 +5266,61 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
-        report += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc;">
-            <strong>Q${i+1}: ${q.question}</strong><br>
-            Your Answer: <span style="color:${sel == q.answer ? 'green' : 'red'}">${sel || 'Not Answered'}</span> | 
-            Correct: ${q.answer}
+        
+        // Generate all options with visual feedback
+        let optionsHTML = q.options.map(opt => {
+            let color = (opt === q.answer) ? "green" : (opt === sel && sel !== q.answer ? "red" : "black");
+            let weight = (opt === q.answer || opt === sel) ? "bold" : "normal";
+            return `<div style="color:${color}; font-weight:${weight}; margin-bottom:2px;">
+                ${opt === sel ? '➤ ' : '○ '} ${opt} ${opt === q.answer ? '[Correct Answer]' : ''}
+            </div>`;
+        }).join('');
+
+        report += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+            <strong>Q${i+1}: ${q.question}</strong><br>${optionsHTML}
         </div>`;
     });
 
     // 2. Render UI
-    renderMeta("finalMeta", userScore);
+    renderMeta("finalMeta"); // Removed score parameter here, we add it manually below
+    
+    // Inject the Large Red Score Box
+    document.getElementById("finalMeta").innerHTML += `
+        <div style="text-align: center; margin: 20px 0; padding: 20px; border: 3px solid #dc3545; border-radius: 10px;">
+            <div style="font-size: 20px; color: #dc3545;">MARKS SECURED</div>
+            <div style="font-size: 48px; font-weight: bold; color: #dc3545;">${userScore}/20</div>
+        </div>`;
+    
     document.getElementById("finalReport").innerHTML = report;
 
     // 3. Prepare data to send to Google Sheets
-const data = { 
-    name: document.getElementById("sName").value, 
-    roll: document.getElementById("sRoll").value, 
-    class: document.getElementById("sClass").value, 
-    score: userScore + "/20", 
-    set: setCode, 
-    // This adds a bullet and a newline for every chapter
-    chapters: selectedChaps.map(c => "• " + c).join('\n') 
-};
+    const data = { 
+        name: document.getElementById("sName").value, 
+        roll: document.getElementById("sRoll").value, 
+        class: document.getElementById("sClass").value, 
+        score: userScore + "/20", 
+        set: setCode, 
+        chapters: selectedChaps.map(c => "• " + c).join('\n') 
+    };
+
     // 4. Send data to Google Script
     fetch(GOOGLE_SCRIPT_URL, { 
         method: "POST", 
         mode: "no-cors", 
         headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify(data) 
-    })
-    .catch(error => console.error("Error:", error));
+    }).catch(error => console.error("Error:", error));
 
     // 5. Switch Screens
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
 
- function downloadHTML() {
+function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
-    const sRoll = document.getElementById("sRoll").value || "N/A";
-    const sClass = document.getElementById("sClass").value || "N/A";
-    const sSet = setCode || "N/A";
-   const sDate = new Date().toLocaleDateString('en-GB', { 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
-});
-    const sScore = userScore + "/20"; 
-    
-    // We get the report content and the chapter list separately
     const report = document.getElementById('finalReport').innerHTML;
-    // We assume your list is inside a container with id 'finalMeta' or similar
-    // Let's grab the chapter list specifically
-    const chapterListHTML = document.querySelector('.chapter-box-ui') ? document.querySelector('.chapter-box-ui').innerHTML : "";
+    // We grab the entire contents of finalMeta which now includes our custom score box
+    const metaContent = document.getElementById('finalMeta').innerHTML;
 
     const fullReportHTML = `
         <!DOCTYPE html>
@@ -5330,14 +5333,7 @@ const data = {
                 .title-group { display: flex; flex-direction: column; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
                 .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
-                
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-                .box-title { text-align: center; font-size: 28px; font-weight: bold; color: #0b5ea8; margin-bottom: 15px; text-decoration: underline; }
-                .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 24px; }
-                .score-bold { font-weight: bold; color: #dc3545; }
-                
-                /* Ensure chapter list is visible */
-                .chapter-box-ui { margin-top: 20px; padding: 10px; background: #fff; border: 1px solid #ddd; }
             </style>
         </head>
         <body>
@@ -5350,22 +5346,7 @@ const data = {
             </div>
 
             <div class="details-box">
-                <div class="box-title">ONLINE CBT TEST RESULT</div>
-                <div class="info-row">
-                    <span><strong>Class:</strong> ${sClass}</span>
-                    <span><strong>Date:</strong> ${sDate}</span>
-                    <span><strong>Set Code:</strong> ${sSet}</span>
-                </div>
-                <div class="info-row">
-                    <span><strong>Candidate Name:</strong> ${sName}</span>
-                    <span><strong>Roll No:</strong> ${sRoll}</span>
-                </div>
-                <div class="info-row">
-                    <span class="score-bold" style="font-size: 25px;">Marks Secured: ${sScore}</span>
-                </div>
-                <div class="chapter-box-ui">
-                    ${chapterListHTML}
-                </div>
+                ${metaContent}
             </div>
 
             <div>
@@ -5382,7 +5363,7 @@ const data = {
     a.download = `SST_Report_${sName}.html`;
     a.click();
 }
-</script>
+    </script>
 </body>
-</html>
+</html> 
 

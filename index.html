@@ -5257,7 +5257,6 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
         let t = 1500;
         let timer = setInterval(() => { t--; document.getElementById("timerDisplay").innerText = `Time: ${Math.floor(t/60)}:${t%60}`; if(t<=0) { clearInterval(timer); submitExam(); } }, 1000);
     }
-
 function submitExam() {
     userScore = 0;
     let report = "";
@@ -5267,7 +5266,6 @@ function submitExam() {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
         
-        // Generate all options with visual feedback
         let optionsHTML = q.options.map(opt => {
             let color = (opt === q.answer) ? "green" : (opt === sel && sel !== q.answer ? "red" : "black");
             let weight = (opt === q.answer || opt === sel) ? "bold" : "normal";
@@ -5282,10 +5280,19 @@ function submitExam() {
     });
 
     // 2. Render UI
-    renderMeta("finalMeta"); // Removed score parameter here, we add it manually below
+    renderMeta("finalMeta");
     
-    // Inject the Large Red Score Box
-    document.getElementById("finalMeta").innerHTML += `
+    // Updated Modern Pill Details Box
+    const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 8px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 5px;";
+    
+    document.getElementById("finalMeta").innerHTML = `
+        <div style="margin-bottom: 20px; text-align: center;">
+            <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
+            <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
+            <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
+            <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
+            <div style="${pillStyle}">Set: ${setCode}</div>
+        </div>
         <div style="text-align: center; margin: 20px 0; padding: 20px; border: 3px solid #dc3545; border-radius: 10px;">
             <div style="font-size: 20px; color: #dc3545;">MARKS SECURED</div>
             <div style="font-size: 48px; font-weight: bold; color: #dc3545;">${userScore}/20</div>
@@ -5293,25 +5300,12 @@ function submitExam() {
     
     document.getElementById("finalReport").innerHTML = report;
 
-    // 3. Prepare data to send to Google Sheets
-    const data = { 
-        name: document.getElementById("sName").value, 
-        roll: document.getElementById("sRoll").value, 
-        class: document.getElementById("sClass").value, 
-        score: userScore + "/20", 
-        set: setCode, 
-        chapters: selectedChaps.map(c => "• " + c).join('\n') 
-    };
-
-    // 4. Send data to Google Script
+    // 3. Send data
     fetch(GOOGLE_SCRIPT_URL, { 
-        method: "POST", 
-        mode: "no-cors", 
-        headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify(data) 
-    }).catch(error => console.error("Error:", error));
+        method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify({ name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, score: userScore + "/20", set: setCode }) 
+    }).catch(e => console.error(e));
 
-    // 5. Switch Screens
     document.getElementById("examUI").classList.add("hide");
     document.getElementById("resultSection").classList.remove("hide");
 }
@@ -5319,7 +5313,6 @@ function submitExam() {
 function downloadHTML() {
     const sName = document.getElementById("sName").value || "Student";
     const report = document.getElementById('finalReport').innerHTML;
-    // We grab the entire contents of finalMeta which now includes our custom score box
     const metaContent = document.getElementById('finalMeta').innerHTML;
 
     const fullReportHTML = `
@@ -5330,10 +5323,8 @@ function downloadHTML() {
                 body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; }
                 .report-header { display: flex; align-items: center; border-bottom: 3px double #000; padding-bottom: 20px; margin-bottom: 20px; }
                 .logo { height: 80px; margin-right: 20px; }
-                .title-group { display: flex; flex-direction: column; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
-                .tagline { font-size: 18px; font-style: italic; color: #333; margin: 0; }
-                .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
+                .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; text-align: center; }
             </style>
         </head>
         <body>
@@ -5341,21 +5332,12 @@ function downloadHTML() {
                 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiQ6lxEfFnImeGWEf7I7Fg9z-uCCkAdKWwxtHLn4zzcyCElV3DupEdwzEKpBin5ucTMpCLDbgwqN_cUkj7qhXDdgAIAvIFLdSJfl2byeN8e4_4oaVImEQQB9lYD-5qrC0mDqWWdXEFuhXy6jViTvcc-6LB6sJa3a2okWqasLjDKMoOxcbvtlUwCLxP5JEl6/s10000/Gemini_Generated_Image_ce701rce701rce70-removebg-preview.png" class="logo">
                 <div class="title-group">
                     <h1 class="academy-name">MY SST ACADEMY</h1>
-                    <p class="tagline">Excellence in Social Science</p>
                 </div>
             </div>
-
-            <div class="details-box">
-                ${metaContent}
-            </div>
-
-            <div>
-                <h3>Answer Key & Performance</h3>
-                ${report}
-            </div>
+            <div class="details-box">${metaContent}</div>
+            <div><h3>Answer Key & Performance</h3>${report}</div>
         </body>
-        </html>
-    `;
+        </html>`;
 
     const blob = new Blob([fullReportHTML], {type: 'text/html'});
     const a = document.createElement('a');

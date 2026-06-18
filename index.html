@@ -5261,7 +5261,7 @@ function submitExam() {
     userScore = 0;
     let report = "";
     
-    // 1. Calculate Score and Generate Report
+    // 1. Calculate Score
     selectedQuestions.forEach((q, i) => {
         const sel = document.querySelector(`input[name="q${i}"]:checked`)?.value;
         if(sel === q.answer) userScore++;
@@ -5279,24 +5279,21 @@ function submitExam() {
         </div>`;
     });
 
-    // 2. Render UI
     renderMeta("finalMeta");
     
-    // Pill Style for Details and Chapter Box
-    const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 12px 25px; border-radius: 30px; font-size: 18px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 5px;";
+    const pillStyle = "background: #eef6ff; border: 1px solid #0b5ea8; padding: 12px 25px; border-radius: 30px; font-size: 18px; font-weight: bold; color: #0b5ea8; display: inline-block; margin: 8px;";
     
-    // Re-rendering meta to include details AND the chapter list
- document.getElementById("finalMeta").innerHTML = `
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h2 style="color: #0b5ea8; margin-bottom: 35px; text-decoration: underline;">ONLINE CBT TEST RESULT</h2>
-        <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
-        <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
-        <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
-        <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
-        <div style="${pillStyle}">Set: ${setCode}</div>
-    </div>
-        <div class="chapter-box-ui" style="margin-bottom: 20px;">
-            <strong>SELECTED CHAPTERS:</strong>
+    document.getElementById("finalMeta").innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #0b5ea8; margin-bottom: 20px; text-decoration: underline;">ONLINE CBT TEST RESULT</h2>
+            <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
+            <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
+            <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
+            <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
+            <div style="${pillStyle}">Set: ${setCode}</div>
+        </div>
+        <div class="chapter-box-ui" style="margin-bottom: 20px; padding: 15px; border: 1px dashed #0b5ea8; background: #f9f9f9;">
+            <strong style="color:#0b5ea8;">SELECTED CHAPTERS:</strong>
             <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;">
                 ${selectedChaps.map(ch => `<li>${ch}</li>`).join('')}
             </ul>
@@ -5308,10 +5305,17 @@ function submitExam() {
     
     document.getElementById("finalReport").innerHTML = report;
 
-    // 3. Send data
+    // Send to Google Sheets
     fetch(GOOGLE_SCRIPT_URL, { 
         method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, 
-        body: JSON.stringify({ name: document.getElementById("sName").value, roll: document.getElementById("sRoll").value, class: document.getElementById("sClass").value, score: userScore + "/20", set: setCode }) 
+        body: JSON.stringify({ 
+            name: document.getElementById("sName").value, 
+            roll: document.getElementById("sRoll").value, 
+            class: document.getElementById("sClass").value, 
+            score: userScore + "/20", 
+            set: setCode,
+            chapters: selectedChaps.map(c => "• " + c).join('\n') 
+        }) 
     }).catch(e => console.error(e));
 
     document.getElementById("examUI").classList.add("hide");
@@ -5333,7 +5337,6 @@ function downloadHTML() {
                 .logo { height: 80px; margin-right: 20px; }
                 .academy-name { font-size: 36px; font-weight: bold; color: #0b5ea8; margin: 0; }
                 .details-box { background: #f9f9f9; border: 2px solid #0b5ea8; padding: 20px; border-radius: 10px; margin-bottom: 30px; }
-                .chapter-box-ui { margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #ddd; }
             </style>
         </head>
         <body>

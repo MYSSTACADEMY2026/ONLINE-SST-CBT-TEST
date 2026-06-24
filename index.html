@@ -5201,7 +5201,7 @@ function renderMeta(targetId, score = null) {
             <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
             <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
             
-            <strong>Section:</strong> ${section} | 
+            <strong>Section:</strong> ${section.toUpperCase()} | 
             
             <strong>Class:</strong> ${document.getElementById("sClass").value} | 
             <strong>Date:</strong> ${d} | 
@@ -5295,7 +5295,7 @@ function submitExam() {
             <h2 style="color: #0b5ea8; margin-bottom: 20px; text-decoration: underline;">ONLINE CBT TEST RESULT</h2>
             <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
             <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
-            <div style="${pillStyle}">Section: ${document.getElementById("sSection").value}</div>
+            <div style="${pillStyle}">Section: ${document.getElementById("sSection").value.toUpperCase()}</div>
             <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
             <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
             <div style="${pillStyle}">Set: ${setCode}</div>

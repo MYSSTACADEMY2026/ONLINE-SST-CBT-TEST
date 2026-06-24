@@ -5295,6 +5295,7 @@ function submitExam() {
             <h2 style="color: #0b5ea8; margin-bottom: 20px; text-decoration: underline;">ONLINE CBT TEST RESULT</h2>
             <div style="${pillStyle}">Candidate: ${document.getElementById("sName").value}</div>
             <div style="${pillStyle}">Roll: ${document.getElementById("sRoll").value}</div>
+            <div style="${pillStyle}">Section: ${document.getElementById("sSection").value}</div>
             <div style="${pillStyle}">Class: ${document.getElementById("sClass").value}</div>
             <div style="${pillStyle}">Date: ${new Date().toLocaleDateString('en-GB')}</div>
             <div style="${pillStyle}">Set: ${setCode}</div>
@@ -5318,6 +5319,7 @@ function submitExam() {
         body: JSON.stringify({ 
             name: document.getElementById("sName").value, 
             roll: document.getElementById("sRoll").value, 
+            section: document.getElementById("sSection").value,
             class: document.getElementById("sClass").value, 
             score: userScore + "/20", 
             set: setCode,

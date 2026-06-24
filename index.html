@@ -5220,7 +5220,7 @@ function renderMeta(targetId, score = null) {
         selectedChaps = Array.from(document.querySelectorAll(".chCheck:checked")).map(el => el.value);
         let pool = [];
         selectedChaps.forEach(ch => pool = pool.concat(questionBank[document.getElementById("sClass").value][ch]));
-        selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 20);
+        selectedQuestions = pool.sort(() => Math.random() - 0.5).slice(0, 30);
         renderMeta("metaBox");
         document.getElementById("setupSection").classList.add("hide");
         document.getElementById("examSection").classList.remove("hide");

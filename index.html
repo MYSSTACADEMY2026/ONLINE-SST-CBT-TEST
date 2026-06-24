@@ -71,6 +71,7 @@
             <h2>Candidate Login</h2>
             <input type="text" id="sName" placeholder="Full Name" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <input type="text" id="sRoll" placeholder="Roll No" style="width:100%; padding:10px; margin-bottom:10px;"><br>
+            <input type="text" id="sSection" placeholder="Section (e.g., A, B, or C)" style="width:100%; padding:10px; margin-bottom:10px;"><br>
             <select id="sClass" onchange="loadChapters()" style="width:100%; padding:10px;">
                 <option value="">Select Class</option>
                 <option value="6">Class 6</option><option value="7">Class 7</option>
@@ -5187,25 +5188,31 @@ let selectedQuestions = [], currentIdx = 0, selectedChaps = [], setCode = "SET-"
 
     function toggleAll(source) { document.querySelectorAll('.chCheck').forEach(checkbox => checkbox.checked = source.checked); }
 
-  function renderMeta(targetId, score = null) {
+function renderMeta(targetId, score = null) {
     const d = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     
-    // Generates the list items
+    // 1. Get the new input value
+    const section = document.getElementById("sSection").value;
+    
     let chapterList = selectedChaps.map(ch => `<li style="margin-bottom: 4px;">${ch}</li>`).join('');
     
     document.getElementById(targetId).innerHTML = `
-        <div class="details-box">
+        <div class="details-box"> 
             <strong>Candidate:</strong> ${document.getElementById("sName").value} | 
             <strong>Roll:</strong> ${document.getElementById("sRoll").value} | 
+            
+            <strong>Section:</strong> ${section} | 
+            
             <strong>Class:</strong> ${document.getElementById("sClass").value} | 
-            <strong>Date:</strong> ${d} | <strong>Set:</strong> ${setCode}
-            ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''}
+            <strong>Date:</strong> ${d} | 
+            <strong>Set:</strong> ${setCode} 
+            ${score !== null ? `<br><strong>Marks Secured:</strong> ${score}/20` : ''} 
         </div>
-        <div class="chapter-box-ui">
-            <strong>SELECTED CHAPTERS:</strong>
-            <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;">
-                ${chapterList}
-            </ul>
+        <div class="chapter-box-ui"> 
+            <strong>SELECTED CHAPTERS:</strong> 
+            <ul style="margin: 10px 0 0 0; padding-left: 25px; list-style-type: disc;"> 
+                ${chapterList} 
+            </ul> 
         </div>`;
 }
 
